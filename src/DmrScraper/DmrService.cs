@@ -73,8 +73,8 @@ public class DmrService(HttpClient client)
         {
             foreach (var div in keyValueDivs)
             {
-                var keyNode = div.SelectSingleNode(".//span[@class='key']");
-                var valueNode = div.SelectSingleNode(".//span[@class='value']");
+                var keyNode = div.SelectSingleNode("./span[@class='key']");
+                var valueNode = div.SelectSingleNode("./span[@class='value']");
 
                 if (keyNode != null && valueNode != null)
                 {
@@ -94,8 +94,8 @@ public class DmrService(HttpClient client)
         {
             foreach (var div in lineDivs)
             {
-                var keyNode = div.SelectSingleNode(".//div[contains(@class,'colLabel')]");
-                var valueNode = div.SelectSingleNode(".//div[contains(@class,'colValue')]/span");
+                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]");
+                var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
 
                 if (keyNode != null && valueNode != null)
                 {

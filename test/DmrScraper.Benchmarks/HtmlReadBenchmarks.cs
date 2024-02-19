@@ -18,7 +18,7 @@ public class HtmlReadBenchmarks
     }
 
     [Benchmark]
-    public Dictionary<string, string> FromContainerNode()
+    public Dictionary<string, string> Version1()
     {
         var dictionary = new Dictionary<string, string>();
 
@@ -54,6 +54,58 @@ public class HtmlReadBenchmarks
                 {
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
                     var value = valueNode.InnerText.Trim();
+
+                    dictionary[key] = value;
+                }
+            }
+        }
+
+        return dictionary;
+    }
+
+    [Benchmark]
+    public Dictionary<string, string> Version2()
+    {
+        var dictionary = new Dictionary<string, string>();
+
+        var contentNode = _htmlDocument.DocumentNode.SelectSingleNode("//div[@class='h-tab-content-inner']");
+
+        var keyValueDivs = contentNode.SelectNodes("//div[contains(@class,'keyvalue')]");
+        if (keyValueDivs != null)
+        {
+            foreach (var div in keyValueDivs)
+            {
+                var keyNode = div.SelectSingleNode("./span[@class='key']");
+                var valueNode = div.SelectSingleNode("./span[@class='value']");
+
+                if (keyNode != null && valueNode != null)
+                {
+                    var key = keyNode.InnerText.Trim().TrimEnd(':');
+                    var value = valueNode.InnerText.Trim();
+
+                    if (!true && (string.IsNullOrWhiteSpace(value) || value == "-"))
+                        continue;
+
+                    dictionary[key] = value;
+                }
+            }
+        }
+
+        var lineDivs = contentNode.SelectNodes("//div[contains(@class,'line') and @id!='lblHstrskVsnngLine']");
+        if (lineDivs != null)
+        {
+            foreach (var div in lineDivs)
+            {
+                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]");
+                var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
+
+                if (keyNode != null && valueNode != null)
+                {
+                    var key = keyNode.InnerText.Trim().TrimEnd(':');
+                    var value = valueNode.InnerText.Trim();
+
+                    if (!true && (string.IsNullOrWhiteSpace(value) || value == "-"))
+                        continue;
 
                     dictionary[key] = value;
                 }
