@@ -13,10 +13,10 @@ internal static class HttpContentHtmlDocumentExtensions
             throw new InvalidOperationException("Content type is not text/html");
         }
 
-        var html = await httpContent.ReadAsStringAsync();
+        var html = await httpContent.ReadAsStreamAsync();
 
         var htmlDocument = new HtmlDocument();
-        htmlDocument.LoadHtml(html);
+        htmlDocument.Load(html);
 
         return htmlDocument;
     }
