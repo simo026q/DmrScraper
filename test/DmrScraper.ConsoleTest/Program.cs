@@ -2,7 +2,7 @@
 
 var dmrService = new DmrService(new HttpClient());
 
-var details = await dmrService.GetDetailsAsync("AA11111", SearchCriteria.RegistrationNumber);
+var details = await dmrService.GetDetailsAsync("AA11111", SearchCriteria.RegistrationNumber, includeEmpty: true);
 
 foreach (var (key, value) in details)
 {
