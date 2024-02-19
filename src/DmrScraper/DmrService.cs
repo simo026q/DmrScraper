@@ -3,7 +3,8 @@ using HtmlAgilityPack;
 
 namespace DmrScraper;
 
-public class DmrService(HttpClient client)
+public class DmrService(HttpClient client) 
+    : IDmrService
 {
     private readonly HttpClient _client = client;
 
@@ -103,4 +104,9 @@ public class DmrService(HttpClient client)
             }
         }
     }
+}
+
+public interface IDmrService
+{
+    Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria);
 }
