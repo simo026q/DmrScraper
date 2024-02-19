@@ -2,6 +2,12 @@
 
 internal struct DmrExecution
 {
+    private const string ExecutionIdPrefix = "e";
+    private const string ActionIdPrefix = "s";
+
+    private const string ExecutionParameter = "execution=";
+    private const char QuerySeparator = '&';
+
     public int ExecutionId { get; }
     public int ActionId { get; private set; }
 
@@ -14,8 +20,8 @@ internal struct DmrExecution
     public DmrExecution(string execution)
     {
         var match = InternalRegex.GetDmrExecutionRegex().Match(execution);
-        ExecutionId = int.Parse(match.Groups["e"].Value);
-        ActionId = int.Parse(match.Groups["s"].Value);
+        ExecutionId = int.Parse(match.Groups[ExecutionIdPrefix].Value);
+        ActionId = int.Parse(match.Groups[ActionIdPrefix].Value);
     }
 
     public void IncrementActionId()
@@ -25,11 +31,8 @@ internal struct DmrExecution
 
     public override string ToString()
     {
-        return $"e{ExecutionId}s{ActionId}";
+        return $"{ExecutionIdPrefix}{ExecutionId}{ActionIdPrefix}{ActionId}";
     }
-
-    private const string ExecutionParameter = "execution=";
-    private const char QuerySeparator = '&';
 
     public static DmrExecution FromUri(ReadOnlySpan<char> url)
     {
