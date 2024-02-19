@@ -81,7 +81,7 @@ public class DmrService(HttpClient client)
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
                     var value = valueNode.InnerText.Trim();
 
-                    if (!includeEmpty && string.IsNullOrWhiteSpace(value) || value == "-")
+                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
                         continue;
 
                     dictionary[key] = value;
@@ -89,7 +89,7 @@ public class DmrService(HttpClient client)
             }
         }
 
-        var lineDivs = contentNode.SelectNodes("//div[contains(@class,'line')]");
+        var lineDivs = contentNode.SelectNodes("//div[contains(@class,'line') and @id!='lblHstrskVsnngLine']");
         if (lineDivs != null)
         {
             foreach (var div in lineDivs)
@@ -102,7 +102,7 @@ public class DmrService(HttpClient client)
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
                     var value = valueNode.InnerText.Trim();
 
-                    if (!includeEmpty && string.IsNullOrWhiteSpace(value) || value == "-")
+                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
                         continue;
 
                     dictionary[key] = value;
