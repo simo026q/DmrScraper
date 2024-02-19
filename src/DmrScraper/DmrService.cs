@@ -8,14 +8,14 @@ public class DmrService(HttpClient client)
 {
     private readonly HttpClient _client = client;
 
-    public async Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria)
+    public async Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false)
     {
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
-        return await GetDetailsFromSearchInfoAsync(searchInfo);
+        return await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty);
     }
 
-    private async Task<Dictionary<string, string>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo)
+    private async Task<Dictionary<string, string>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty)
     {
         var content = searchInfo.GetFormUrlEncodedContent();
         var execution = searchInfo.Execution;
@@ -26,7 +26,7 @@ public class DmrService(HttpClient client)
 
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
-        FillDictionaryFromHtml(dictionary, searchResult);
+        FillDictionaryFromHtml(dictionary, searchResult, includeEmpty);
 
         execution.IncrementActionId();
 
@@ -36,7 +36,7 @@ public class DmrService(HttpClient client)
 
             HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
 
-            FillDictionaryFromHtml(dictionary, pageHtml);
+            FillDictionaryFromHtml(dictionary, pageHtml, includeEmpty);
 
             execution.IncrementActionId();
         }
@@ -64,7 +64,7 @@ public class DmrService(HttpClient client)
         return new SearchInfo(formToken, searchCriteria, searchString, DmrExecution.FromUri(formAction));
     }
         
-    private static void FillDictionaryFromHtml(Dictionary<string, string> dictionary, HtmlDocument htmlDocument)
+    private static void FillDictionaryFromHtml(Dictionary<string, string> dictionary, HtmlDocument htmlDocument, bool includeEmpty)
     {
         var contentNode = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='h-tab-content-inner']");
 
@@ -80,6 +80,9 @@ public class DmrService(HttpClient client)
                 {
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
                     var value = valueNode.InnerText.Trim();
+
+                    if (!includeEmpty && string.IsNullOrWhiteSpace(value) || value == "-")
+                        continue;
 
                     dictionary[key] = value;
                 }
@@ -99,6 +102,9 @@ public class DmrService(HttpClient client)
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
                     var value = valueNode.InnerText.Trim();
 
+                    if (!includeEmpty && string.IsNullOrWhiteSpace(value) || value == "-")
+                        continue;
+
                     dictionary[key] = value;
                 }
             }
@@ -108,5 +114,5 @@ public class DmrService(HttpClient client)
 
 public interface IDmrService
 {
-    Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria);
+    Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false);
 }
