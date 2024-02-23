@@ -8,25 +8,25 @@ public class DmrService(HttpClient client)
 {
     private readonly HttpClient _client = client;
 
-    public async Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false)
+    public async Task<List<KeyValuePair<string, string>>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false)
     {
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
         return await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty);
     }
 
-    private async Task<Dictionary<string, string>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty)
+    private async Task<List<KeyValuePair<string, string>>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty)
     {
         var content = searchInfo.GetFormUrlEncodedContent();
         var execution = searchInfo.Execution;
 
-        var dictionary = new Dictionary<string, string>();
+        var list = new List<KeyValuePair<string, string>>();
 
         HttpResponseMessage searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(execution), content);
 
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
-        FillDictionaryFromHtml(dictionary, searchResult, includeEmpty);
+        FillListFromHtml(list, searchResult, includeEmpty);
 
         execution.IncrementActionId();
 
@@ -36,12 +36,12 @@ public class DmrService(HttpClient client)
 
             HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
 
-            FillDictionaryFromHtml(dictionary, pageHtml, includeEmpty);
+            FillListFromHtml(list, pageHtml, includeEmpty);
 
             execution.IncrementActionId();
         }
 
-        return dictionary;
+        return list;
     }
 
     private async Task<SearchInfo> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)
@@ -64,7 +64,7 @@ public class DmrService(HttpClient client)
         return new SearchInfo(formToken, searchCriteria, searchString, DmrExecution.FromUri(formAction));
     }
         
-    private static void FillDictionaryFromHtml(Dictionary<string, string> dictionary, HtmlDocument htmlDocument, bool includeEmpty)
+    private static void FillListFromHtml(List<KeyValuePair<string, string>> list, HtmlDocument htmlDocument, bool includeEmpty)
     {
         var contentNode = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='h-tab-content-inner']");
 
@@ -84,7 +84,7 @@ public class DmrService(HttpClient client)
                     if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
                         continue;
 
-                    dictionary[key] = value;
+                    list.Add(new KeyValuePair<string, string>(key, value));
                 }
             }
         }
@@ -105,7 +105,7 @@ public class DmrService(HttpClient client)
                     if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
                         continue;
 
-                    dictionary[key] = value;
+                    list.Add(new KeyValuePair<string, string>(key, value));
                 }
             }
         }
@@ -114,5 +114,5 @@ public class DmrService(HttpClient client)
 
 public interface IDmrService
 {
-    Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false);
+    Task<List<KeyValuePair<string, string>>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false);
 }
