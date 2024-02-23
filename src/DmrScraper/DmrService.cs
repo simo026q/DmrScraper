@@ -111,8 +111,3 @@ public class DmrService(HttpClient client)
         }
     }
 }
-
-public interface IDmrService
-{
-    Task<List<KeyValuePair<string, string>>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false);
-}
