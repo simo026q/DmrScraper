@@ -94,7 +94,7 @@ public class DmrService(HttpClient client)
         {
             foreach (var div in lineDivs)
             {
-                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]");
+                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]/label");
                 var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
 
                 if (keyNode != null && valueNode != null)
