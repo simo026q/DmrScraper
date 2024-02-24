@@ -66,48 +66,8 @@ public class DmrService(HttpClient client)
         
     private static void FillListFromHtml(List<KeyValuePair<string, string>> list, HtmlDocument htmlDocument, bool includeEmpty)
     {
-        var contentNode = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='h-tab-content-inner']");
+        var reader = new DmrHtmlReader(htmlDocument);
 
-        var keyValueDivs = contentNode.SelectNodes("//div[contains(@class,'keyvalue')]");
-        if (keyValueDivs != null)
-        {
-            foreach (var div in keyValueDivs)
-            {
-                var keyNode = div.SelectSingleNode("./span[@class='key']");
-                var valueNode = div.SelectSingleNode("./span[@class='value']");
-
-                if (keyNode != null && valueNode != null)
-                {
-                    var key = keyNode.InnerText.Trim().TrimEnd(':');
-                    var value = valueNode.InnerText.Trim();
-
-                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
-                        continue;
-
-                    list.Add(new KeyValuePair<string, string>(key, value));
-                }
-            }
-        }
-
-        var lineDivs = contentNode.SelectNodes("//div[contains(@class,'line') and @id!='lblHstrskVsnngLine']");
-        if (lineDivs != null)
-        {
-            foreach (var div in lineDivs)
-            {
-                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]/label");
-                var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
-
-                if (keyNode != null && valueNode != null)
-                {
-                    var key = keyNode.InnerText.Trim().TrimEnd(':');
-                    var value = valueNode.InnerText.Trim();
-
-                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
-                        continue;
-
-                    list.Add(new KeyValuePair<string, string>(key, value));
-                }
-            }
-        }
+        list.AddRange(reader.ReadKeyValuePairs());
     }
 }
