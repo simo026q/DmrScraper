@@ -1,4 +1,5 @@
 ﻿using DmrScraper.Internal;
+using DmrScraper.Models;
 using HtmlAgilityPack;
 
 namespace DmrScraper;
@@ -13,6 +14,13 @@ public class DmrService(HttpClient client)
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
         return await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty);
+    }
+
+    public async Task<Vehicle> GetVehicleAsync(string searchString, SearchCriteria searchCriteria)
+    {
+        var details = await GetDetailsAsync(searchString, searchCriteria);
+
+        return VehicleParser.ParseVehicle(details);
     }
 
     private async Task<List<KeyValuePair<string, string>>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty)
