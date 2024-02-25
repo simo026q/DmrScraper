@@ -474,7 +474,14 @@ internal static class VehicleParser
                     var equipment = value.Split(", ");
                     foreach (var eq in equipment)
                     {
-                        vehicle.OtherEquipment.Add(eq);
+                        if (VehicleEquipment.NameDictionary.TryGetValue(eq, out var name))
+                        {
+                            vehicle.Equipment.Add(new VehicleEquipment(name, 1));
+                        }
+                        else
+                        {
+                            vehicle.OtherEquipment.Add(eq);
+                        }
                     }
                     break;
             }
