@@ -84,6 +84,13 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                         lastNonIndentedKey = key;
                     }
 
+                    var fieldGroupAncestor = div.SelectSingleNode("./ancestor::div[@class='fieldGroup']/h3[@class='fieldGroupHeader']");
+                    if (fieldGroupAncestor != null)
+                    {
+                        var header = fieldGroupAncestor.InnerText.Trim();
+                        key = $"{header}.{key}";
+                    }
+
                     keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
                 }
             }
