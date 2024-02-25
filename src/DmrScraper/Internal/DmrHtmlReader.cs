@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using System.Diagnostics;
 using System.Reflection.Emit;
 
 namespace DmrScraper.Internal;
@@ -49,7 +50,7 @@ internal class DmrHtmlReader(HtmlNode contentNode)
             }
         }
 
-        var lineDivs = htmlNode.SelectNodes(".//div[contains(@class,'line') and @id!='lblHstrskVsnngLine']");
+        var lineDivs = htmlNode.SelectNodes(".//div[contains(@class,'line') and (@id!='lblHstrskVsnngLine' or not(@id))]");
         if (lineDivs != null)
         {
             string? lastNonIndentedKey = null;
@@ -57,41 +58,50 @@ internal class DmrHtmlReader(HtmlNode contentNode)
             foreach (var div in lineDivs)
             {
                 var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]//label");
-                var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
 
-                if (keyNode != null && valueNode != null)
+                if (keyNode != null)
                 {
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
-                    var value = valueNode.InnerText.Trim();
 
-                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
-                    {
-                        continue;
-                    }
+                    var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
 
-                    if (!includeFalse && value == "Nej")
+                    if (valueNode != null)
                     {
-                        continue;
-                    }
+                        var value = valueNode.InnerText.Trim();
 
-                    var isIndented = keyNode.ParentNode.GetAttributeValue("class", string.Empty) == "indented";
-                    if (isIndented && lastNonIndentedKey != null)
-                    {
-                        key = $"{lastNonIndentedKey}.{key}";
+                        if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
+                        {
+                            continue;
+                        }
+
+                        if (!includeFalse && value == "Nej")
+                        {
+                            continue;
+                        }
+
+                        var isIndented = keyNode.ParentNode.GetAttributeValue("class", string.Empty) == "indented";
+                        if (isIndented && lastNonIndentedKey != null)
+                        {
+                            key = $"{lastNonIndentedKey}.{key}";
+                        }
+                        else
+                        {
+                            lastNonIndentedKey = key;
+                        }
+
+                        var fieldGroupAncestor = div.SelectSingleNode("./ancestor::div[@class='fieldGroup']/h3[@class='fieldGroupHeader']");
+                        if (fieldGroupAncestor != null)
+                        {
+                            var header = fieldGroupAncestor.InnerText.Trim();
+                            key = $"{header}.{key}";
+                        }
+
+                        keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
                     }
                     else
                     {
                         lastNonIndentedKey = key;
                     }
-
-                    var fieldGroupAncestor = div.SelectSingleNode("./ancestor::div[@class='fieldGroup']/h3[@class='fieldGroupHeader']");
-                    if (fieldGroupAncestor != null)
-                    {
-                        var header = fieldGroupAncestor.InnerText.Trim();
-                        key = $"{header}.{key}";
-                    }
-
-                    keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
                 }
             }
         }
