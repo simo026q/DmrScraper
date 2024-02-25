@@ -11,12 +11,12 @@ internal class DmrHtmlReader(HtmlNode contentNode)
     {
     }
 
-    public List<KeyValuePair<string, string>> ReadKeyValuePairs()
+    public List<KeyValuePair<string, string>> ReadKeyValuePairs(bool includeEmpty, bool includeFalse)
     {
-        return ReadKeyValuePairsFromHtmlNode(_contentNode);
+        return ReadKeyValuePairsFromHtmlNode(_contentNode, includeEmpty, includeFalse);
     }
 
-    private static List<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode)
+    private static List<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode, bool includeEmpty, bool includeFalse)
     {
         var keyValuePairs = new List<KeyValuePair<string, string>>();
 
@@ -26,6 +26,16 @@ internal class DmrHtmlReader(HtmlNode contentNode)
             {
                 var key = keyNode.InnerText.Trim().TrimEnd(':');
                 var value = valueNode.InnerText.Trim();
+
+                if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
+                {
+                    return;
+                }
+
+                if (!includeFalse && value == "Nej")
+                {
+                    return;
+                }
 
                 keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
             }

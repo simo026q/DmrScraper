@@ -13,17 +13,19 @@ public class DmrService(HttpClient client)
     {
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
-        return await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty);
+        return await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty, includeFalse: true);
     }
 
     public async Task<Vehicle> GetVehicleAsync(string searchString, SearchCriteria searchCriteria)
     {
-        var details = await GetDetailsAsync(searchString, searchCriteria);
+        var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
+
+        var details = await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty: false, includeFalse: false);
 
         return VehicleParser.ParseVehicle(details);
     }
 
-    private async Task<List<KeyValuePair<string, string>>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty)
+    private async Task<List<KeyValuePair<string, string>>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty, bool includeFalse)
     {
         var content = searchInfo.GetFormUrlEncodedContent();
         var execution = searchInfo.Execution;
@@ -34,7 +36,7 @@ public class DmrService(HttpClient client)
 
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
-        FillListFromHtml(list, searchResult, includeEmpty);
+        FillListFromHtml(list, searchResult, includeEmpty, includeFalse);
 
         execution.IncrementActionId();
 
@@ -44,7 +46,7 @@ public class DmrService(HttpClient client)
 
             HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
 
-            FillListFromHtml(list, pageHtml, includeEmpty);
+            FillListFromHtml(list, pageHtml, includeEmpty, includeFalse);
 
             execution.IncrementActionId();
         }
@@ -72,10 +74,10 @@ public class DmrService(HttpClient client)
         return new SearchInfo(formToken, searchCriteria, searchString, DmrExecution.FromUri(formAction));
     }
         
-    private static void FillListFromHtml(List<KeyValuePair<string, string>> list, HtmlDocument htmlDocument, bool includeEmpty)
+    private static void FillListFromHtml(List<KeyValuePair<string, string>> list, HtmlDocument htmlDocument, bool includeEmpty, bool includeFalse)
     {
         var reader = new DmrHtmlReader(htmlDocument);
 
-        list.AddRange(reader.ReadKeyValuePairs());
+        list.AddRange(reader.ReadKeyValuePairs(includeEmpty, includeFalse));
     }
 }
