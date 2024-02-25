@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using System.Reflection.Emit;
 
 namespace DmrScraper.Internal;
 
@@ -20,27 +21,6 @@ internal class DmrHtmlReader(HtmlNode contentNode)
     {
         var keyValuePairs = new List<KeyValuePair<string, string>>();
 
-        void AddChecked(HtmlNode keyNode, HtmlNode valueNode)
-        {
-            if (keyNode != null && valueNode != null)
-            {
-                var key = keyNode.InnerText.Trim().TrimEnd(':');
-                var value = valueNode.InnerText.Trim();
-
-                if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
-                {
-                    return;
-                }
-
-                if (!includeFalse && value == "Nej")
-                {
-                    return;
-                }
-
-                keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
-            }
-        }
-
         var keyValueDivs = htmlNode.SelectNodes(".//div[contains(@class,'keyvalue')]");
         if (keyValueDivs != null)
         {
@@ -49,19 +29,63 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                 var keyNode = div.SelectSingleNode("./span[@class='key']");
                 var valueNode = div.SelectSingleNode("./span[@class='value']");
 
-                AddChecked(keyNode, valueNode);
+                if (keyNode != null && valueNode != null)
+                {
+                    var key = keyNode.InnerText.Trim().TrimEnd(':');
+                    var value = valueNode.InnerText.Trim();
+
+                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
+                    {
+                        continue;
+                    }
+
+                    if (!includeFalse && value == "Nej")
+                    {
+                        continue;
+                    }
+
+                    keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
+                }
             }
         }
 
         var lineDivs = htmlNode.SelectNodes(".//div[contains(@class,'line') and @id!='lblHstrskVsnngLine']");
         if (lineDivs != null)
         {
+            string? lastNonIndentedKey = null;
+
             foreach (var div in lineDivs)
             {
-                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]/label");
+                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]//label");
                 var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
 
-                AddChecked(keyNode, valueNode);
+                if (keyNode != null && valueNode != null)
+                {
+                    var key = keyNode.InnerText.Trim().TrimEnd(':');
+                    var value = valueNode.InnerText.Trim();
+
+                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
+                    {
+                        continue;
+                    }
+
+                    if (!includeFalse && value == "Nej")
+                    {
+                        continue;
+                    }
+
+                    var isIndented = keyNode.ParentNode.GetAttributeValue("class", string.Empty) == "indented";
+                    if (isIndented && lastNonIndentedKey != null)
+                    {
+                        key = $"{lastNonIndentedKey}.{key}";
+                    }
+                    else
+                    {
+                        lastNonIndentedKey = key;
+                    }
+
+                    keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
+                }
             }
         }
 
