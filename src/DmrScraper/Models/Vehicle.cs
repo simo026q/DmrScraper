@@ -32,4 +32,7 @@ public class Vehicle
     public string Condition { get; set; }
     public string ConditionRemarks { get; set; }
     public string TrafficDamage { get; set; }
+
+    public IList<VehicleEquipment> Equipment { get; set; } = [];
+    public ICollection<string> OtherEquipment { get; set; } = [];
 }
