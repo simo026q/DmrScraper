@@ -1,6 +1,5 @@
 ﻿using HtmlAgilityPack;
 using System.Diagnostics;
-using System.Reflection.Emit;
 
 namespace DmrScraper.Internal;
 
@@ -18,7 +17,7 @@ internal class DmrHtmlReader(HtmlNode contentNode)
         return ReadKeyValuePairsFromHtmlNode(_contentNode, includeEmpty, includeFalse);
     }
 
-    private static List<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode, bool includeEmpty, bool includeFalse)
+    private static List<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
     {
         var keyValuePairs = new List<KeyValuePair<string, string>>();
 
@@ -35,12 +34,9 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
                     var value = valueNode.InnerText.Trim();
 
-                    if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
-                    {
-                        continue;
-                    }
-
-                    if (!includeFalse && value == "Nej")
+                    if (string.IsNullOrWhiteSpace(value)
+                        || !includeUnknown && value == "-"
+                        || !includeFalse && value == "Nej")
                     {
                         continue;
                     }
@@ -50,7 +46,7 @@ internal class DmrHtmlReader(HtmlNode contentNode)
             }
         }
 
-        var lineDivs = htmlNode.SelectNodes(".//div[contains(@class,'line') and (@id!='lblHstrskVsnngLine' or not(@id))]");
+        var lineDivs = htmlNode.SelectNodes(".//div[contains(@class,'line')]");
         if (lineDivs != null)
         {
             string? lastNonIndentedKey = null;
@@ -69,12 +65,9 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                     {
                         var value = valueNode.InnerText.Trim();
 
-                        if (!includeEmpty && (string.IsNullOrWhiteSpace(value) || value == "-"))
-                        {
-                            continue;
-                        }
-
-                        if (!includeFalse && value == "Nej")
+                        if (string.IsNullOrWhiteSpace(value) 
+                            || !includeUnknown && value == "-" 
+                            || !includeFalse && value == "Nej")
                         {
                             continue;
                         }
