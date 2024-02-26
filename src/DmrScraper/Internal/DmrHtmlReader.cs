@@ -26,18 +26,16 @@ internal class DmrHtmlReader(HtmlNode contentNode)
     {
     }
 
-    public List<KeyValuePair<string, string>> ReadKeyValuePairs(bool includeEmpty, bool includeFalse)
+    public IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairs(bool includeEmpty, bool includeFalse)
     {
         return ReadKeyValuePairsFromHtmlNode(_contentNode, includeEmpty, includeFalse);
     }
 
-    private static List<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
+    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
     {
-        var keyValuePairs = new List<KeyValuePair<string, string>>();
-
         var fieldGroupNodes = htmlNode.SelectNodes(XPaths.FieldGroup);
         if (fieldGroupNodes == null)
-            return keyValuePairs;
+            yield break; 
 
         foreach (var fieldGroupNode in fieldGroupNodes)
         {
@@ -76,7 +74,7 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
                     keyBuilder.Append(key);
 
-                    keyValuePairs.Add(new KeyValuePair<string, string>(keyBuilder.ToString(), value));
+                    yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
                 }
             }
 
@@ -131,11 +129,9 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
                     keyBuilder.Append(key);
 
-                    keyValuePairs.Add(new KeyValuePair<string, string>(keyBuilder.ToString(), value));
+                    yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
                 }
             }
         }
-
-        return keyValuePairs;
     }
 }
