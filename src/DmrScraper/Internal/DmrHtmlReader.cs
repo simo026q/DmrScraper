@@ -1,5 +1,5 @@
 ﻿using HtmlAgilityPack;
-using System.Diagnostics;
+using System.Text;
 
 namespace DmrScraper.Internal;
 
@@ -21,79 +21,104 @@ internal class DmrHtmlReader(HtmlNode contentNode)
     {
         var keyValuePairs = new List<KeyValuePair<string, string>>();
 
-        var keyValueDivs = htmlNode.SelectNodes(".//div[contains(@class,'keyvalue')]");
-        if (keyValueDivs != null)
+        var fieldGroupNodes = htmlNode.SelectNodes("./div[@class='fieldGroup']");
+        if (fieldGroupNodes != null)
         {
-            foreach (var div in keyValueDivs)
+            foreach (var fieldGroupNode in fieldGroupNodes)
             {
-                var keyNode = div.SelectSingleNode("./span[@class='key']");
-                var valueNode = div.SelectSingleNode("./span[@class='value']");
+                var headerNode = fieldGroupNode.SelectSingleNode("./h3[@class='fieldGroupHeader']");
+                string? header = headerNode?.InnerText.Trim();
 
-                if (keyNode != null && valueNode != null)
+                var keyValueDivs = fieldGroupNode.SelectNodes(".//div[contains(@class,'keyvalue')]");
+                if (keyValueDivs != null)
                 {
-                    var key = keyNode.InnerText.Trim().TrimEnd(':');
-                    var value = valueNode.InnerText.Trim();
-
-                    if (string.IsNullOrWhiteSpace(value)
-                        || !includeUnknown && value == "-"
-                        || !includeFalse && value == "Nej")
+                    foreach (var div in keyValueDivs)
                     {
-                        continue;
-                    }
+                        var keyNode = div.SelectSingleNode("./span[@class='key']");
+                        var valueNode = div.SelectSingleNode("./span[@class='value']");
 
-                    keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
+                        if (keyNode != null && valueNode != null)
+                        {
+                            var value = valueNode.InnerText.Trim();
+
+                            if (string.IsNullOrWhiteSpace(value)
+                                || !includeUnknown && value == "-"
+                                || !includeFalse && value == "Nej")
+                            {
+                                continue;
+                            }
+
+                            StringBuilder keyBuilder = new();
+
+                            if (header != null)
+                            {
+                                keyBuilder.Append(header);
+                                keyBuilder.Append('.');
+                            }
+
+                            var key = keyNode.InnerText.Trim().TrimEnd(':');
+
+                            keyBuilder.Append(key);
+
+                            keyValuePairs.Add(new KeyValuePair<string, string>(keyBuilder.ToString(), value));
+                        }
+                    }
                 }
-            }
-        }
 
-        var lineDivs = htmlNode.SelectNodes(".//div[contains(@class,'line')]");
-        if (lineDivs != null)
-        {
-            string? lastNonIndentedKey = null;
-
-            foreach (var div in lineDivs)
-            {
-                var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]//label");
-
-                if (keyNode != null)
+                var lineDivs = fieldGroupNode.SelectNodes(".//div[contains(@class,'line')]");
+                if (lineDivs != null)
                 {
-                    var key = keyNode.InnerText.Trim().TrimEnd(':');
+                    string? lastNonIndentedKey = null;
 
-                    var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
-
-                    if (valueNode != null)
+                    foreach (var div in lineDivs)
                     {
-                        var value = valueNode.InnerText.Trim();
+                        var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]//label");
 
-                        if (string.IsNullOrWhiteSpace(value) 
-                            || !includeUnknown && value == "-" 
-                            || !includeFalse && value == "Nej")
+                        if (keyNode != null)
                         {
-                            continue;
-                        }
+                            var key = keyNode.InnerText.Trim().TrimEnd(':');
 
-                        var isIndented = keyNode.ParentNode.GetAttributeValue("class", string.Empty) == "indented";
-                        if (isIndented && lastNonIndentedKey != null)
-                        {
-                            key = $"{lastNonIndentedKey}.{key}";
-                        }
-                        else
-                        {
-                            lastNonIndentedKey = key;
-                        }
+                            var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
 
-                        var fieldGroupAncestor = div.SelectSingleNode("./ancestor::div[@class='fieldGroup']/h3[@class='fieldGroupHeader']");
-                        if (fieldGroupAncestor != null)
-                        {
-                            var header = fieldGroupAncestor.InnerText.Trim();
-                            key = $"{header}.{key}";
-                        }
+                            if (valueNode != null)
+                            {
+                                var value = valueNode.InnerText.Trim();
 
-                        keyValuePairs.Add(new KeyValuePair<string, string>(key, value));
-                    }
-                    else
-                    {
-                        lastNonIndentedKey = key;
+                                if (string.IsNullOrWhiteSpace(value)
+                                    || !includeUnknown && value == "-"
+                                    || !includeFalse && value == "Nej")
+                                {
+                                    continue;
+                                }
+
+                                StringBuilder keyBuilder = new();
+
+                                if (header != null)
+                                {
+                                    keyBuilder.Append(header);
+                                    keyBuilder.Append('.');
+                                }
+
+                                var isIndented = keyNode.ParentNode.GetAttributeValue("class", string.Empty) == "indented";
+                                if (isIndented && lastNonIndentedKey != null)
+                                {
+                                    keyBuilder.Append(lastNonIndentedKey);
+                                    keyBuilder.Append('.');
+                                }
+                                else
+                                {
+                                    lastNonIndentedKey = key;
+                                }
+
+                                keyBuilder.Append(key);
+
+                                keyValuePairs.Add(new KeyValuePair<string, string>(keyBuilder.ToString(), value));
+                            }
+                            else
+                            {
+                                lastNonIndentedKey = key;
+                            }
+                        }
                     }
                 }
             }
