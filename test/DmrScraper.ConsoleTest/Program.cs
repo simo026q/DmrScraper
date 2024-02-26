@@ -1,19 +1,23 @@
 ﻿using DmrScraper;
-using System.Text.Json;
 
 var dmrService = new DmrService(new HttpClient());
 
 string registrationNumber = GeetRegistrationNumber();
 
-/*var vehicle = await dmrService.GetVehicleAsync(registrationNumber, SearchCriteria.RegistrationNumber);
+var details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, AdditionalSearchSheets.TechnicalInformation, new DmrServiceOptions() { IncludeEmptyValues = true });
 
-var vehicleJson = JsonSerializer.Serialize(vehicle, new JsonSerializerOptions { WriteIndented = true });
+Console.WriteLine();
+Console.WriteLine("Vehicle details:");
+Console.WriteLine();
+foreach (var (key, value) in details.Vehicle)
+{
+    Console.WriteLine($"{key}: {value}");
+}
 
-Console.WriteLine(vehicleJson);*/
-
-var details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, includeEmpty: true);
-
-foreach (var (key, value) in details)
+Console.WriteLine();
+Console.WriteLine("Technical information:");
+Console.WriteLine();
+foreach (var (key, value) in details.TechnicalInformation)
 {
     Console.WriteLine($"{key}: {value}");
 }

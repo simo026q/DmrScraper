@@ -1,5 +1,4 @@
 ﻿using DmrScraper.Internal;
-using DmrScraper.Models;
 using HtmlAgilityPack;
 
 namespace DmrScraper;
@@ -9,49 +8,31 @@ public class DmrService(HttpClient client)
 {
     private readonly HttpClient _client = client;
 
-    public async Task<List<KeyValuePair<string, string>>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false)
+    public async Task<DetailsResult> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
-        return await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty, includeFalse: true);
+        return await GetDetailsFromSearchInfoAsync(searchInfo, searchSheets, options);
     }
 
-    public async Task<Vehicle> GetVehicleAsync(string searchString, SearchCriteria searchCriteria)
-    {
-        var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
-
-        var details = await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty: false, includeFalse: false);
-
-        return VehicleParser.ParseVehicle(details);
-    }
-
-    private async Task<List<KeyValuePair<string, string>>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty, bool includeFalse)
+    private async Task<DetailsResult> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
         var content = searchInfo.GetFormUrlEncodedContent();
         var execution = searchInfo.Execution;
-
-        var list = new List<KeyValuePair<string, string>>();
 
         HttpResponseMessage searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(execution), content);
 
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
-        FillListFromHtml(list, searchResult, includeEmpty, includeFalse);
+        var vehicleDetails = GetDetailsFromHtmlDocument(searchResult, options);
 
         execution.IncrementActionId();
 
-        for (var i = 1; i <= 4; i++)
-        {
-            HttpResponseMessage pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, i));
+        IEnumerable<KeyValuePair<string, string>> technicalInformation = searchSheets.HasFlag(AdditionalSearchSheets.TechnicalInformation)
+            ? await GetDetailsFromPageIndexAsync(1, execution, options)
+            : Enumerable.Empty<KeyValuePair<string, string>>();
 
-            HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
-
-            FillListFromHtml(list, pageHtml, includeEmpty, includeFalse);
-
-            execution.IncrementActionId();
-        }
-
-        return list;
+        return new DetailsResult(vehicleDetails, technicalInformation);
     }
 
     private async Task<SearchInfo> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)
@@ -73,11 +54,22 @@ public class DmrService(HttpClient client)
 
         return new SearchInfo(formToken, searchCriteria, searchString, DmrExecution.FromUri(formAction));
     }
-        
-    private static void FillListFromHtml(List<KeyValuePair<string, string>> list, HtmlDocument htmlDocument, bool includeEmpty, bool includeFalse)
+
+    private async Task<IEnumerable<KeyValuePair<string, string>>> GetDetailsFromPageIndexAsync(int pageIndex, DmrExecution execution, DmrServiceOptions options)
+    {
+        HttpResponseMessage pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, pageIndex));
+
+        HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
+
+        execution.IncrementActionId();
+
+        return GetDetailsFromHtmlDocument(pageHtml, options);
+    }
+
+    private static IEnumerable<KeyValuePair<string, string>> GetDetailsFromHtmlDocument(HtmlDocument htmlDocument, DmrServiceOptions options)
     {
         var reader = new DmrHtmlReader(htmlDocument);
 
-        list.AddRange(reader.ReadKeyValuePairs(includeEmpty, includeFalse));
+        return reader.ReadKeyValuePairs(options.IncludeEmptyValues, options.IncludeFalseValues);
     }
 }
