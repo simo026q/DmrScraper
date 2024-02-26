@@ -11,7 +11,8 @@ public class HtmlReadBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        using var fs = File.OpenRead(@".\Vis køretøj - DMR Kerne.html");
+        //using var fs = File.OpenRead(@".\DMR - Køretøj.html");
+        using var fs = File.OpenRead(@".\DMR - Tekniske oplysninger.html");
 
         _htmlDocument = new HtmlDocument();
         _htmlDocument.Load(fs);
