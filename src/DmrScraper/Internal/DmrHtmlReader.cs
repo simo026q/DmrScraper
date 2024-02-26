@@ -1,14 +1,28 @@
 ﻿using HtmlAgilityPack;
 using System.Text;
+using System.Xml.XPath;
 
 namespace DmrScraper.Internal;
 
 internal class DmrHtmlReader(HtmlNode contentNode)
 {
+    private static class XPaths
+    {
+        public static readonly XPathExpression Content = XPathExpression.Compile("//div[@class='h-tab-content-inner']");
+        public static readonly XPathExpression FieldGroup = XPathExpression.Compile("./div[@class='fieldGroup']");
+        public static readonly XPathExpression FieldGroupHeader = XPathExpression.Compile("./h3[@class='fieldGroupHeader']");
+        public static readonly XPathExpression KeyValueContainer = XPathExpression.Compile(".//div[contains(@class,'keyvalue')]");
+        public static readonly XPathExpression KeyValueKey = XPathExpression.Compile("./span[@class='key']");
+        public static readonly XPathExpression KeyValueValue = XPathExpression.Compile("./span[@class='value']");
+        public static readonly XPathExpression Line = XPathExpression.Compile(".//div[contains(@class,'line')]");
+        public static readonly XPathExpression LineKey = XPathExpression.Compile("./div[contains(@class,'colLabel')]//label");
+        public static readonly XPathExpression LineValue = XPathExpression.Compile("./div[contains(@class,'colValue')]/span");
+    }
+
     private readonly HtmlNode _contentNode = contentNode;
 
     public DmrHtmlReader(HtmlDocument htmlDocument)
-        : this(htmlDocument.DocumentNode.SelectSingleNode("//div[@class='h-tab-content-inner']"))
+        : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content))
     {
     }
 
@@ -21,22 +35,22 @@ internal class DmrHtmlReader(HtmlNode contentNode)
     {
         var keyValuePairs = new List<KeyValuePair<string, string>>();
 
-        var fieldGroupNodes = htmlNode.SelectNodes("./div[@class='fieldGroup']");
+        var fieldGroupNodes = htmlNode.SelectNodes(XPaths.FieldGroup);
         if (fieldGroupNodes == null)
             return keyValuePairs;
 
         foreach (var fieldGroupNode in fieldGroupNodes)
         {
-            var headerNode = fieldGroupNode.SelectSingleNode("./h3[@class='fieldGroupHeader']");
+            var headerNode = fieldGroupNode.SelectSingleNode(XPaths.FieldGroupHeader);
             string? header = headerNode?.InnerText.Trim();
 
-            var keyValueDivs = fieldGroupNode.SelectNodes(".//div[contains(@class,'keyvalue')]");
+            var keyValueDivs = fieldGroupNode.SelectNodes(XPaths.KeyValueContainer);
             if (keyValueDivs != null)
             {
                 foreach (var div in keyValueDivs)
                 {
-                    var keyNode = div.SelectSingleNode("./span[@class='key']");
-                    var valueNode = div.SelectSingleNode("./span[@class='value']");
+                    var keyNode = div.SelectSingleNode(XPaths.KeyValueKey);
+                    var valueNode = div.SelectSingleNode(XPaths.KeyValueValue);
 
                     if (keyNode == null || valueNode == null)
                         continue;
@@ -66,20 +80,20 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                 }
             }
 
-            var lineDivs = fieldGroupNode.SelectNodes(".//div[contains(@class,'line')]");
+            var lineDivs = fieldGroupNode.SelectNodes(XPaths.Line);
             if (lineDivs != null)
             {
                 string? lastNonIndentedKey = null;
 
                 foreach (var div in lineDivs)
                 {
-                    var keyNode = div.SelectSingleNode("./div[contains(@class,'colLabel')]//label");
+                    var keyNode = div.SelectSingleNode(XPaths.LineKey);
                     if (keyNode == null)
                         continue;
 
                     var key = keyNode.InnerText.Trim().TrimEnd(':');
 
-                    var valueNode = div.SelectSingleNode("./div[contains(@class,'colValue')]/span");
+                    var valueNode = div.SelectSingleNode(XPaths.LineValue);
 
                     if (valueNode == null)
                     {
