@@ -8,11 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DMR - Køretøj.html" />
+    <None Remove="DMR - Tekniske oplysninger.html" />
     <None Remove="Vis køretøj - DMR Kerne.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Vis køretøj - DMR Kerne.html">
+    <Content Include="DMR - Køretøj.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DMR - Tekniske oplysninger.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

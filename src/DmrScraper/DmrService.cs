@@ -8,40 +8,31 @@ public class DmrService(HttpClient client)
 {
     private readonly HttpClient _client = client;
 
-    public async Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false)
+    public async Task<DetailsResult> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
-        return await GetDetailsFromSearchInfoAsync(searchInfo, includeEmpty);
+        return await GetDetailsFromSearchInfoAsync(searchInfo, searchSheets, options);
     }
 
-    private async Task<Dictionary<string, string>> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, bool includeEmpty)
+    private async Task<DetailsResult> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
         var content = searchInfo.GetFormUrlEncodedContent();
         var execution = searchInfo.Execution;
-
-        var dictionary = new Dictionary<string, string>();
 
         HttpResponseMessage searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(execution), content);
 
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
-        FillDictionaryFromHtml(dictionary, searchResult, includeEmpty);
+        var vehicleDetails = GetDetailsFromHtmlDocument(searchResult, options);
 
         execution.IncrementActionId();
 
-        for (var i = 1; i <= 4; i++)
-        {
-            HttpResponseMessage pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, i));
+        IEnumerable<KeyValuePair<string, string>> technicalInformation = searchSheets.HasFlag(AdditionalSearchSheets.TechnicalInformation)
+            ? await GetDetailsFromPageIndexAsync(1, execution, options)
+            : Enumerable.Empty<KeyValuePair<string, string>>();
 
-            HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
-
-            FillDictionaryFromHtml(dictionary, pageHtml, includeEmpty);
-
-            execution.IncrementActionId();
-        }
-
-        return dictionary;
+        return new DetailsResult(vehicleDetails, technicalInformation);
     }
 
     private async Task<SearchInfo> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)
@@ -63,56 +54,22 @@ public class DmrService(HttpClient client)
 
         return new SearchInfo(formToken, searchCriteria, searchString, DmrExecution.FromUri(formAction));
     }
-        
-    private static void FillDictionaryFromHtml(Dictionary<string, string> dictionary, HtmlDocument htmlDocument, bool includeEmpty)
+
+    private async Task<IEnumerable<KeyValuePair<string, string>>> GetDetailsFromPageIndexAsync(int pageIndex, DmrExecution execution, DmrServiceOptions options)
     {
-        var contentNode = htmlDocument.DocumentNode.SelectSingleNode("//div[@class='h-tab-content-inner']");
+        HttpResponseMessage pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, pageIndex));
 
-        var keyValueDivs = contentNode.SelectNodes("//div[contains(@class,'keyvalue')]");
-        if (keyValueDivs != null)
-        {
-            foreach (var div in keyValueDivs)
-            {
-                var keyNode = div.SelectSingleNode(".//span[@class='key']");
-                var valueNode = div.SelectSingleNode(".//span[@class='value']");
+        HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
 
-                if (keyNode != null && valueNode != null)
-                {
-                    var key = keyNode.InnerText.Trim().TrimEnd(':');
-                    var value = valueNode.InnerText.Trim();
+        execution.IncrementActionId();
 
-                    if (!includeEmpty && string.IsNullOrWhiteSpace(value) || value == "-")
-                        continue;
-
-                    dictionary[key] = value;
-                }
-            }
-        }
-
-        var lineDivs = contentNode.SelectNodes("//div[contains(@class,'line')]");
-        if (lineDivs != null)
-        {
-            foreach (var div in lineDivs)
-            {
-                var keyNode = div.SelectSingleNode(".//div[contains(@class,'colLabel')]/label");
-                var valueNode = div.SelectSingleNode(".//div[contains(@class,'colValue')]/span");
-
-                if (keyNode != null && valueNode != null)
-                {
-                    var key = keyNode.InnerText.Trim().TrimEnd(':');
-                    var value = valueNode.InnerText.Trim();
-
-                    if (!includeEmpty && string.IsNullOrWhiteSpace(value) || value == "-")
-                        continue;
-
-                    dictionary[key] = value;
-                }
-            }
-        }
+        return GetDetailsFromHtmlDocument(pageHtml, options);
     }
-}
 
-public interface IDmrService
-{
-    Task<Dictionary<string, string>> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, bool includeEmpty = false);
+    private static IEnumerable<KeyValuePair<string, string>> GetDetailsFromHtmlDocument(HtmlDocument htmlDocument, DmrServiceOptions options)
+    {
+        var reader = new DmrHtmlReader(htmlDocument);
+
+        return reader.ReadKeyValuePairs(options.IncludeEmptyValues, options.IncludeFalseValues);
+    }
 }

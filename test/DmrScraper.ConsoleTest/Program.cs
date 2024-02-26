@@ -2,11 +2,46 @@
 
 var dmrService = new DmrService(new HttpClient());
 
-var details = await dmrService.GetDetailsAsync("AA11111", SearchCriteria.RegistrationNumber);
+string registrationNumber = GeetRegistrationNumber();
 
-foreach (var (key, value) in details)
+var details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, AdditionalSearchSheets.TechnicalInformation, new DmrServiceOptions() { IncludeEmptyValues = true });
+
+Console.WriteLine();
+Console.WriteLine("Vehicle details:");
+Console.WriteLine();
+foreach (var (key, value) in details.Vehicle)
 {
     Console.WriteLine($"{key}: {value}");
 }
 
-Console.ReadLine();
+Console.WriteLine();
+Console.WriteLine("Technical information:");
+Console.WriteLine();
+foreach (var (key, value) in details.TechnicalInformation)
+{
+    Console.WriteLine($"{key}: {value}");
+}
+
+Console.WriteLine("Press any key to exit...");
+Console.ReadKey();
+
+static string GeetRegistrationNumber()
+{
+    string? registrationNumber;
+
+    do
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write("? ");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("Enter registration number: ");
+        Console.ForegroundColor = ConsoleColor.Gray;
+
+        registrationNumber = Console.ReadLine();
+
+        Console.ResetColor();
+    }
+    while (string.IsNullOrWhiteSpace(registrationNumber));
+
+    return registrationNumber;
+}
