@@ -1,10 +1,10 @@
 ﻿using DmrScraper;
 
-var dmrService = new DmrService(new HttpClient());
+IDmrService dmrService = new DmrService(new HttpClient());
 
 string registrationNumber = GeetRegistrationNumber();
 
-var details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, AdditionalSearchSheets.TechnicalInformation, new DmrServiceOptions() { IncludeEmptyValues = true });
+DetailsResult details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, AdditionalSearchSheets.TechnicalInformation, new DmrServiceOptions() { IncludeEmptyValues = true });
 
 Console.WriteLine();
 Console.WriteLine("Vehicle details:");
