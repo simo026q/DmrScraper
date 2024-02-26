@@ -37,8 +37,7 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
         foreach (var fieldGroupNode in fieldGroupNodes)
         {
-            var headerNode = fieldGroupNode.SelectSingleNode(XPaths.FieldGroupHeader);
-            string? header = headerNode?.InnerText.Trim();
+            string? header = GetFormGroupHeader(fieldGroupNode);
 
             var keyValueDivs = fieldGroupNode.SelectNodesOrEmpty(XPaths.KeyValueContainer);
             foreach (var div in keyValueDivs)
@@ -125,5 +124,11 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                 yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
             }
         }
+    }
+
+    private static string? GetFormGroupHeader(HtmlNode fieldGroupNode)
+    {
+        var headerNode = fieldGroupNode.SelectSingleNode(XPaths.FieldGroupHeader);
+        return headerNode?.InnerText.Trim();
     }
 }
