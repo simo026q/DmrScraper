@@ -2,5 +2,5 @@
 
 public interface IDmrService
 {
-    Task<DetailsResult> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions options);
+    Task<DetailsResult?> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions options);
 }

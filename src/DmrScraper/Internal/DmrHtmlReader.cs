@@ -19,7 +19,9 @@ internal class DmrHtmlReader(HtmlNode contentNode)
         public static readonly XPathExpression LineValue = XPathExpression.Compile("./div[contains(@class,'colValue')]/span");
     }
 
-    private readonly HtmlNode _contentNode = contentNode;
+    private readonly HtmlNode? _contentNode = contentNode;
+
+    public bool HasContent => _contentNode != null;
 
     public DmrHtmlReader(HtmlDocument htmlDocument)
         : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content))
@@ -28,6 +30,9 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
     public IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairs(bool includeEmpty, bool includeFalse)
     {
+        if (_contentNode == null)
+            return [];
+
         return ReadKeyValuePairsFromHtmlNode(_contentNode, includeEmpty, includeFalse);
     }
 

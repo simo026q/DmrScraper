@@ -8,14 +8,14 @@ public class DmrService(HttpClient client)
 {
     private readonly HttpClient _client = client;
 
-    public async Task<DetailsResult> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
+    public async Task<DetailsResult?> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
         return await GetDetailsFromSearchInfoAsync(searchInfo, searchSheets, options);
     }
 
-    private async Task<DetailsResult> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
+    private async Task<DetailsResult?> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
         var content = searchInfo.GetFormUrlEncodedContent();
         var execution = searchInfo.Execution;
@@ -24,7 +24,12 @@ public class DmrService(HttpClient client)
 
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
-        var vehicleDetails = GetDetailsFromHtmlDocument(searchResult, options);
+        var reader = new DmrHtmlReader(searchResult);
+
+        if (!reader.HasContent)
+            return null;
+
+        var vehicleDetails = reader.ReadKeyValuePairs(options.IncludeEmptyValues, options.IncludeFalseValues);
 
         execution.IncrementActionId();
 
@@ -63,12 +68,7 @@ public class DmrService(HttpClient client)
 
         execution.IncrementActionId();
 
-        return GetDetailsFromHtmlDocument(pageHtml, options);
-    }
-
-    private static IEnumerable<KeyValuePair<string, string>> GetDetailsFromHtmlDocument(HtmlDocument htmlDocument, DmrServiceOptions options)
-    {
-        var reader = new DmrHtmlReader(htmlDocument);
+        var reader = new DmrHtmlReader(pageHtml);
 
         return reader.ReadKeyValuePairs(options.IncludeEmptyValues, options.IncludeFalseValues);
     }
