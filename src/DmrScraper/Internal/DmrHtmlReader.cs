@@ -12,9 +12,11 @@ internal class DmrHtmlReader(HtmlNode contentNode)
         public static readonly XPathExpression FieldGroup = XPathExpression.Compile("./div[@class='fieldGroup']");
         public static readonly XPathExpression FieldGroupHeader = XPathExpression.Compile("./h3[@class='fieldGroupHeader']");
         public static readonly XPathExpression KeyValueContainer = XPathExpression.Compile(".//div[contains(@class,'keyvalue')]");
+        public static readonly XPathExpression KeyValueContainerOutsideFieldGroup = XPathExpression.Compile(".//div[contains(@class,'keyvalue') and not(ancestor::div[@class='fieldGroup'])]");
         public static readonly XPathExpression KeyValueKey = XPathExpression.Compile("./span[@class='key']");
         public static readonly XPathExpression KeyValueValue = XPathExpression.Compile("./span[@class='value']");
         public static readonly XPathExpression Line = XPathExpression.Compile(".//div[contains(@class,'line')]");
+        public static readonly XPathExpression LineOutsideFieldGroup = XPathExpression.Compile(".//div[contains(@class,'line') and not(ancestor::div[@class='fieldGroup'])]");
         public static readonly XPathExpression LineKey = XPathExpression.Compile("./div[contains(@class,'colLabel')]//label");
         public static readonly XPathExpression LineValue = XPathExpression.Compile("./div[contains(@class,'colValue')]/span");
     }
@@ -55,26 +57,25 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
                 var value = valueNode.InnerText.Trim();
 
-                if (string.IsNullOrWhiteSpace(value)
-                    || !includeUnknown && value == "-"
-                    || !includeFalse && value == "Nej")
+                if (!IsValueValid(value, includeUnknown, includeFalse))
                 {
                     continue;
                 }
 
-                StringBuilder keyBuilder = new();
+                string key = keyNode.InnerText.Trim().TrimEnd(':');
 
                 if (header != null)
                 {
+                    StringBuilder keyBuilder = new();
+
                     keyBuilder.Append(header);
                     keyBuilder.Append('.');
+                    keyBuilder.Append(key);
+
+                    key = keyBuilder.ToString();
                 }
 
-                var key = keyNode.InnerText.Trim().TrimEnd(':');
-
-                keyBuilder.Append(key);
-
-                yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
+                yield return new KeyValuePair<string, string>(key, value);
             }
 
             var lineDivs = fieldGroupNode.SelectNodesOrEmpty(XPaths.Line);
@@ -98,9 +99,7 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
                 var value = valueNode.InnerText.Trim();
 
-                if (string.IsNullOrWhiteSpace(value)
-                    || !includeUnknown && value == "-"
-                    || !includeFalse && value == "Nej")
+                if (!IsValueValid(value, includeUnknown, includeFalse))
                 {
                     continue;
                 }
@@ -129,6 +128,55 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                 yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
             }
         }
+
+        var keyValuePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.KeyValueContainerOutsideFieldGroup, XPaths.KeyValueKey, XPaths.KeyValueValue, includeUnknown, includeFalse);
+        foreach (var pair in keyValuePairs)
+        {
+            yield return pair;
+        }
+
+        var linePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.LineOutsideFieldGroup, XPaths.LineKey, XPaths.LineValue, includeUnknown, includeFalse);
+        foreach (var pair in linePairs)
+        {
+            yield return pair;
+        }
+    }
+
+    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromNodeBySelectors(HtmlNode rootNode, 
+        XPathExpression containerExpression, 
+        XPathExpression keyExpression, 
+        XPathExpression valueExpression, 
+        bool includeUnknown, 
+        bool includeFalse)
+    {
+        var keyValueNodes = rootNode.SelectNodesOrEmpty(containerExpression);
+
+        foreach (var keyValueNode in keyValueNodes)
+        {
+            var keyNode = keyValueNode.SelectSingleNode(keyExpression);
+            var valueNode = keyValueNode.SelectSingleNode(valueExpression);
+
+            if (keyNode == null || valueNode == null)
+                continue;
+
+            var value = valueNode.InnerText.Trim();
+
+            if (!IsValueValid(value, includeUnknown, includeFalse))
+            {
+                continue;
+            }
+
+            var key = keyNode.InnerText.Trim().TrimEnd(':');
+
+            yield return new KeyValuePair<string, string>(key, value);
+        }
+    }
+
+    private static bool IsValueValid(string value, bool includeUnknown, bool includeFalse)
+    {
+        return !string.IsNullOrWhiteSpace(value)
+            && (includeUnknown || value != "-")
+            && (includeFalse || value != "Nej");
     }
 
     private static string? GetFormGroupHeader(HtmlNode fieldGroupNode)
