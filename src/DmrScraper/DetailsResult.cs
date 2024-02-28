@@ -1,12 +1,27 @@
 ﻿namespace DmrScraper;
 
-public sealed class DetailsResult(
-    IEnumerable<KeyValuePair<string, string>> vehicle, 
-    IEnumerable<KeyValuePair<string, string>> technicalInformation)
-{ 
-    public IEnumerable<KeyValuePair<string, string>> Vehicle { get; } = vehicle;
-    public IEnumerable<KeyValuePair<string, string>> TechnicalInformation { get; } = technicalInformation;
+/// <summary>
+/// Represents the result of a query for details about a vehicle in the Danish Motor Registry service.
+/// </summary>
+public sealed class DetailsResult
+{
+    /// <summary>
+    /// Gets the details of the vehicle.
+    /// </summary>
+    public IEnumerable<KeyValuePair<string, string>> Vehicle { get; }
+
+    /// <summary>
+    /// Gets the technical information about the vehicle.
+    /// </summary>
+    public IEnumerable<KeyValuePair<string, string>> TechnicalInformation { get; }
+
     //public IEnumerable<KeyValuePair<string, string>> Inspection { get; }
     //public IEnumerable<KeyValuePair<string, string>> Insurance { get; }
     //public IEnumerable<KeyValuePair<string, string>> Permits { get; }
+
+    internal DetailsResult(IEnumerable<KeyValuePair<string, string>> vehicle, IEnumerable<KeyValuePair<string, string>> technicalInformation)
+    {
+        Vehicle = vehicle;
+        TechnicalInformation = technicalInformation;
+    }
 }

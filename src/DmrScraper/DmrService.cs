@@ -3,11 +3,13 @@ using HtmlAgilityPack;
 
 namespace DmrScraper;
 
+/// <inheritdoc cref="IDmrService"/>
 public class DmrService(HttpClient client) 
     : IDmrService
 {
     private readonly HttpClient _client = client;
 
+    /// <inheritdoc cref="IDmrService"/>
     public async Task<DetailsResult?> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions? options = null)
     {
         var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
@@ -15,6 +17,7 @@ public class DmrService(HttpClient client)
         return await GetDetailsFromSearchInfoAsync(searchInfo, searchSheets, options ?? DmrServiceOptions.Default);
     }
 
+    /// <inheritdoc cref="IDmrService"/>
     public Task<DetailsResult?> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, DmrServiceOptions? options = null)
     {
         return GetDetailsAsync(searchString, searchCriteria, AdditionalSearchSheets.None, options);
