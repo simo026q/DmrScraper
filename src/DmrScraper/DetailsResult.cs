@@ -30,4 +30,9 @@ public sealed class DetailsResult
         Inspection = inspection;
         Insurance = insurance;
     }
+
+    public IEnumerable<KeyValuePair<string, string>> GetAllCombined()
+    {
+        return Vehicle.Concat(TechnicalInformation).Concat(Inspection).Concat(Insurance);
+    }
 }
