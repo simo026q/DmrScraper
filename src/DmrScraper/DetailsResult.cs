@@ -1,6 +1,6 @@
 ﻿namespace DmrScraper;
 
-public readonly struct DetailsResult(
+public sealed class DetailsResult(
     IEnumerable<KeyValuePair<string, string>> vehicle, 
     IEnumerable<KeyValuePair<string, string>> technicalInformation)
 { 
