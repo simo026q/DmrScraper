@@ -43,9 +43,17 @@ public class DmrService(HttpClient client)
 
         IEnumerable<KeyValuePair<string, string>> technicalInformation = searchSheets.HasFlag(AdditionalSearchSheets.TechnicalInformation)
             ? await GetDetailsFromPageIndexAsync(1, execution, options)
-            : Enumerable.Empty<KeyValuePair<string, string>>();
+            : [];
 
-        return new DetailsResult(vehicleDetails, technicalInformation);
+        IEnumerable<KeyValuePair<string, string>> inspectionDetails = searchSheets.HasFlag(AdditionalSearchSheets.Inspection)
+            ? await GetDetailsFromPageIndexAsync(2, execution, options)
+            : [];
+
+        IEnumerable<KeyValuePair<string, string>> insuranceDetails = searchSheets.HasFlag(AdditionalSearchSheets.Insurance)
+            ? await GetDetailsFromPageIndexAsync(3, execution, options)
+            : [];
+
+        return new DetailsResult(vehicleDetails, technicalInformation, inspectionDetails, insuranceDetails);
     }
 
     private async Task<SearchInfo> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)

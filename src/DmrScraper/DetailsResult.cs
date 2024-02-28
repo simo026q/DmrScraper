@@ -15,13 +15,19 @@ public sealed class DetailsResult
     /// </summary>
     public IEnumerable<KeyValuePair<string, string>> TechnicalInformation { get; }
 
-    //public IEnumerable<KeyValuePair<string, string>> Inspection { get; }
-    //public IEnumerable<KeyValuePair<string, string>> Insurance { get; }
+    public IEnumerable<KeyValuePair<string, string>> Inspection { get; }
+    public IEnumerable<KeyValuePair<string, string>> Insurance { get; }
+
     //public IEnumerable<KeyValuePair<string, string>> Permits { get; }
 
-    internal DetailsResult(IEnumerable<KeyValuePair<string, string>> vehicle, IEnumerable<KeyValuePair<string, string>> technicalInformation)
+    internal DetailsResult(IEnumerable<KeyValuePair<string, string>> vehicle, 
+        IEnumerable<KeyValuePair<string, string>> technicalInformation,
+        IEnumerable<KeyValuePair<string, string>> inspection,
+        IEnumerable<KeyValuePair<string, string>> insurance)
     {
         Vehicle = vehicle;
         TechnicalInformation = technicalInformation;
+        Inspection = inspection;
+        Insurance = insurance;
     }
 }

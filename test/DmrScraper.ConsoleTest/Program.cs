@@ -4,7 +4,7 @@ IDmrService dmrService = new DmrService(new HttpClient());
 
 string registrationNumber = GeetRegistrationNumber();
 
-DetailsResult? details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, AdditionalSearchSheets.TechnicalInformation, new DmrServiceOptions() { IncludeEmptyValues = true });
+DetailsResult? details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, AdditionalSearchSheets.All, new DmrServiceOptions() { IncludeEmptyValues = true });
 
 if (details == null)
 {
@@ -24,6 +24,22 @@ else
     Console.WriteLine("Technical information:");
     Console.WriteLine();
     foreach (var (key, value) in details.TechnicalInformation)
+    {
+        Console.WriteLine($"{key}: {value}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Inspection details:");
+    Console.WriteLine();
+    foreach (var (key, value) in details.Inspection)
+    {
+        Console.WriteLine($"{key}: {value}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Insurance details:");
+    Console.WriteLine();
+    foreach (var (key, value) in details.Insurance)
     {
         Console.WriteLine($"{key}: {value}");
     }

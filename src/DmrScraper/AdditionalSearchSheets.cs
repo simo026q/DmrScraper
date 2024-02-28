@@ -16,12 +16,12 @@ public enum AdditionalSearchSheets
     /// </summary>
     TechnicalInformation = 1,
 
-    //Inspection = 2,
-    //Insurance = 4,
+    Inspection = 2,
+    Insurance = 4,
     //Permits = 8,
 
     /// <summary>
     /// Include all available sheets.
     /// </summary>
-    All = TechnicalInformation //| Inspection | Insurance | Permits
+    All = TechnicalInformation | Inspection | Insurance //| Permits
 }
