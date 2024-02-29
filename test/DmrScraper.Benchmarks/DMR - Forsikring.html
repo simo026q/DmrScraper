@@ -1,0 +1,2337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="da" lang="da"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    
+
+    
+    <meta http-equiv="refresh" content="7200;url=?_nfpb=true&amp;_nfpb=true&amp;_pageLabel=login_page&amp;_nfls=false&amp;logout=true">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    
+    <link rel="icon" type="image/ico" href="https://motorregister.skat.dk/dmr-kerne/framework/skins/dmr/images/favicon.ico">
+    <script type="text/javascript" src="./Vis køretøj - DMR Kerne_files/Utils2.0.js.download"></script>
+    <script type="text/javascript" src="./Vis køretøj - DMR Kerne_files/calendar.js.download"></script>
+    <script type="text/javascript" src="./Vis køretøj - DMR Kerne_files/dmr.js.download"></script>
+    <script type="text/javascript">
+        //<![CDATA[
+        if (typeof Utils == "object") {
+            Utils.Texts = {
+                largerText: "Større skrift",
+                largerTextTooltip: "Gør skrifttypen på siden større",
+                smallerText: "Mindre skrift",
+                smallerTextTooltip: "Gør skrifttypen på siden mindre",
+                onBeforeUnloadText: "Du er ved at forlade siden. Ønsker du at gemme oplysningerne først?",
+                disablePtrEditing: "Afslut redigering",
+                disablePtrEditingTooltip: "",
+                enablePtrEditing: "Rediger tekster",
+                enablePtrEditingTooltip: "",
+                Paths: {}
+            }
+            Utils.Cache.set("helpIcons", []);
+        }
+        if (typeof DMR == "object") {
+            DMR.JES.path = "/dmr-kerne/jes";
+            DMR.HBOS.path = "/dmr-kerne/hbos";
+            DMR.BBCO2.path = "/dmr-kerne/bbco2";
+            DMR.JES.Texts = {
+                jeNotFound: "Juridisk enhed ikke fundet",
+                jeObligatorisk: "Feltet skal udfyldes",
+                jeIkkeValid: "Input er ikke valid.",
+                pNrIkkeValid: "Der skal indtastes et gyldigt 10 cifret produktionsenhedsnr. Fx. 1005201034.",
+                cvrNummer: "Cvr-nummer:",
+                akrNummer: "AKR-nummer:",
+                cprNummer: "Cpr-nummer:",
+                alleNumre: "CVR-, AKR-, CPR-nummer:"
+            };
+        }
+        //]]>
+    </script>
+    <title>Vis køretøj - DMR Kerne</title>
+    <link rel="stylesheet" type="text/css" href="./Vis køretøj - DMR Kerne_files/grid.css">
+    <link rel="stylesheet" type="text/css" href="./Vis køretøj - DMR Kerne_files/screen.css">
+    <link rel="stylesheet" type="text/css" href="./Vis køretøj - DMR Kerne_files/dmr.css">
+    <link type="text/css" rel="stylesheet" href="./Vis køretøj - DMR Kerne_files/print.css" media="print" id="ssPrint">
+    <link id="ssFontsLarge" type="text/css" rel="alternate stylesheet" href="./Vis køretøj - DMR Kerne_files/fontsLarge.css" title="ForstÃ¸rret tekst" disabled="">
+<script type="text/javascript" src="./Vis køretøj - DMR Kerne_files/advancementScript.js.download"></script></head>
+<body style="display: block;">
+
+<div id="header">
+    <a href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4#content" id="skipnavigation" accesskey="">
+        
+
+
+
+
+
+
+
+
+
+
+Skip navigation
+</a>
+    <a name="top"></a>
+
+    
+        <div id="logoWrapper">
+            
+            <span id="headerContent">
+					
+					
+          
+              
+                  
+                      
+                          
+                          <a tabindex="4780801" href="https://motorregister.skat.dk/dmr-kerne/initiateAuthentication" id="goToLogin">Log på</a>
+                          
+                          
+                      
+                  
+                  
+              
+          
+             
+					<a tabindex="4780802" href="http://tastselv.skat.dk/" id="regularLogo"><img src="./Vis køretøj - DMR Kerne_files/skatdk_logo_SMALL_RGB_WHITE.png" height="49" alt="Gå til forside" title="Gå til forside"></a>
+
+				    <img src="./Vis køretøj - DMR Kerne_files/skatdk_logo_SMALL_RGB_BLACK.png" height="49" alt="Logo til print i sort og hvid" title="Logo til print i sort og hvid" id="printlogo">
+        </span>
+        </div>
+    
+</div>
+<div id="outerContainer">
+    
+    
+        
+            
+            <div id="container" class="erhverv">
+                
+                
+
+                <a name="content"></a>
+                <div class="column" id="center">
+                    <div id="breadcrumb">
+                        <span>Her er du:</span><a href="https://motorregister.skat.dk/dmr-kerne/frontpage"> Motorregister</a><span class="bcarrow"></span><a href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/frontpage"> Køretøjsdetaljer</a><span class="bcarrow"></span> Vis køretøj
+                    </div>
+                    <div class="inside">
+                        <div id="GDPR-warning">
+                            <img src="./Vis køretøj - DMR Kerne_files/icon_exclamation.gif" alt="Udråbstegnsikon til generel advarsel" title="Udråbstegnsikon" id="udraabstegnsikon">
+                            <p>
+                                
+
+
+
+
+
+
+
+
+
+
+Indtast kun personoplysninger – fx CPR- og tlf.nr – i felter hvor du udtrykkeligt bliver bedt om det
+
+                            </p>
+                        </div>
+                        <div id="ieRedrawFix"></div>
+                        
+    
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+		
+   	
+   	
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+
+	
+	
+		<h1 class="" title="">
+			Vis køretøj
+		</h1>
+	
+
+
+
+
+    <p>
+
+
+
+
+
+
+
+
+
+
+Køretøjet kan have mere udstyr, end der er angivet under tekniske oplysninger. Dette skyldes, at det gamle motorregister ikke havde disse oplysninger. Køretøjer, som er oprettet efter 1. juni 2012, vil have korrekte oplysninger i motorregisteret.
+</p>
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="tabNav">
+    <div class="h-tabs" id="">
+        <div class="h-tab-btns">
+            
+                
+                    <ul>
+                
+                
+            
+            
+            
+                
+                    
+                    
+                        <li>
+                            <div class="h-tab-btn active">
+                                <a tabindex="4781001" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=customPage&amp;_pageIndex=0" onclick="DMR.WaitForLoad.on()">
+                                    <span class="title" style="display:block">
+                                        
+                                            1.
+                                        
+                                        Køretøj
+                                    </span>
+                                </a>
+                            </div>
+                        </li>
+                    
+                    
+                
+                        
+                
+                    
+                
+                
+            
+                
+                    
+                    
+                        <li>
+                            <div class="h-tab-btn active">
+                                <a tabindex="4781002" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=customPage&amp;_pageIndex=1" onclick="DMR.WaitForLoad.on()">
+                                    <span class="title" style="display:block">
+                                        
+                                            2.
+                                        
+                                        Tekniske oplysninger
+                                    </span>
+                                </a>
+                            </div>
+                        </li>
+                    
+                    
+                
+                        
+                
+                
+            
+                
+                    
+                    
+                        <li>
+                            <div class="h-tab-btn active">
+                                <a tabindex="4781003" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=customPage&amp;_pageIndex=2" onclick="DMR.WaitForLoad.on()">
+                                    <span class="title" style="display:block">
+                                        
+                                            3.
+                                        
+                                        Syn
+                                    </span>
+                                </a>
+                            </div>
+                        </li>
+                    
+                    
+                
+                        
+                
+                
+            
+                
+                    
+                        <li class="selected">
+                            <div class="h-tab-btn selected"><span class="title" style="display:block">4. 
+                                    Forsikring</span>
+                            </div>
+                        </li>
+                        
+                        
+                    
+                    
+                    
+                
+                        
+                
+                
+            
+                
+                    
+                    
+                        <li>
+                            <div class="h-tab-btn active">
+                                <a tabindex="4781004" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=customPage&amp;_pageIndex=4" onclick="DMR.WaitForLoad.on()">
+                                    <span class="title" style="display:block">
+                                        
+                                            5.
+                                        
+                                        Dispensationer og tilladelser
+                                    </span>
+                                </a>
+                            </div>
+                        </li>
+                    
+                    
+                
+                        
+                
+                
+            
+            
+                
+                    </ul>
+                
+                
+            
+            <div class="h-tab-btn btn-slide-back" id="back-visKTTabset">«</div>
+            <div class="h-tab-btn btn-slide-forward" id="forward-visKTTabset">»</div>
+            <script type="text/javascript">
+                //<![CDATA[
+                Utils.Page.GuideTabs.init('visKTTabset')
+                //]]>
+            </script>
+        </div>
+        <div class="h-tab-content">
+            <div class="h-tab-content-inner">
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+
+	
+		
+		
+   	
+   	
+
+
+
+
+
+
+	
+	
+		
+	
+
+
+
+	
+	
+		<h2 class="accessibility" title="">
+			Forsikring
+		</h2>
+	
+
+
+                
+            
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+            
+            
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+            
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+            
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+	
+	<div id="id1003887242" class="fieldGroup">
+		
+		<div class="line cols1">
+			<form id="indstilHistoriskDatoForm" action="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=indstilHistoriskDato" method="post">
+		
+
+
+
+<input type="hidden" value="eiorfdp0frbk8inrin32fr5nsu" name="dmrFormToken">
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+ 
+
+
+
+
+
+
+	<div class="unit formCol colNo1 ">
+		<div class="line" id="lblHstrskVsnngLine">
+    
+      
+      
+        
+        
+          
+          
+            <div class="unit size2of5 colLabel">
+              
+              
+                
+                
+                  
+                    
+                    
+                      
+                      
+                        
+                          <label for="lblHstrskVsnng" id="ptr-dmr:portlet.visKT.lblHstrskVsnng">Angiv eventuelt dato for historisk visning:</label>
+                        
+                        
+                      
+                      
+                    
+                  
+                
+              
+              
+              
+              
+
+</div>
+<div class="unit size3of5 colValue">
+  
+        
+        <input tabindex="4781005" id="lblHstrskVsnng" name="historiskDato" class="notrequired text notrequired text date" type="text" value="" maxlength="100">
+        
+            
+        
+            
+            <input tabindex="4781006" type="image" alt="Vælg en dato" style="margin-bottom: -3px;" src="./Vis køretøj - DMR Kerne_files/icon_calendar.gif" onkeypress="return Utils.Page.handleKeyPressed(this, event)" onclick="if(!document.getElementById(&#39;datepicker-lblHstrskVsnng&#39;).disabled &amp;&amp; !document.getElementById(&#39;datepicker-lblHstrskVsnng&#39;).readOnly){ displayDatePicker(&#39;lblHstrskVsnng&#39;, &#39;dd-MM-yyyy&#39;, &#39;-&#39;);}return false;" name="portal:framework.accessibility.btnSelectDate">
+            <span id="datepicker-lblHstrskVsnng" class="calendar-wrapper"></span>
+        
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <input tabindex="4781007" type="submit" name="/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=indstilHistoriskDato" class="notrequired submit submit" id="lblHentHstrskVsnng" style="" alt="" value="Hent" accesskey="t" onclick="DMR.WaitForLoad.on();">
+    
+
+
+        
+    
+        
+    
+  
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+	<div class="helpButtonInline">
+		<a tabindex="4781008" name="ptr-jump-dmr:portlet.visKT.lblHstrskVsnng" id="ptr-tip-dmr:portlet.visKT.lblHstrskVsnng" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4#ptr-jump-dmr:portlet.visKT.lblHstrskVsnng" class="a-btn-further-info-over" onclick="DMR.Infobox.showFurtherInfo(&#39;lblHstrskVsnng&#39;, this);"><img class="btn-further-info-over" src="./Vis køretøj - DMR Kerne_files/icon_info.gif" alt="" style=""></a>
+		<div class="further-info" id="further-infolblHstrskVsnng">
+			<blockquote>
+				<div><img class="btn-further-info" src="./Vis køretøj - DMR Kerne_files/icon_info.gif" alt="info"></div>
+				<div class="infotext">
+
+
+
+
+
+
+
+
+For at se hvordan køretøjet så i på en bestemt dato, kan du indtaste eller vælge datoen ved hjælp af datovælgeren og klikke "Hent".
+</div>
+			</blockquote>
+			<div onclick="document.getElementById(&#39;ptr-tip-dmr:portlet.visKT.lblHstrskVsnng&#39;).focus();" class="closeInfobox"><a tabindex="4781009" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4#ptr-jump-dmr:portlet.visKT.lblHstrskVsnng" title="Luk hjælpeteksten" onclick="DMR.Infobox.hideFurtherInfo(&#39;lblHstrskVsnng&#39;);">
+
+
+
+
+
+
+
+
+
+
+Luk
+</a></div>
+		</div>
+	</div>  
+    
+
+
+  
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+        
+            
+        
+    
+    
+
+
+  
+  
+</div>
+
+
+
+
+</div>
+	</div>
+
+	</form> 
+		</div>
+		
+			<hr>
+		
+	</div>
+
+
+
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+
+	
+		
+		
+   	
+   	
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+
+	
+	
+		<h3 class="" title="">
+			Forsikring
+		</h3>
+	
+
+
+
+
+
+	
+		<div class="notrequired bluebox stortVisit">
+            
+			
+              
+  				<div class="notrequired keyvalue twocol">
+  					
+  						
+  						
+  							
+  							<span class="key">Selskab:</span>
+							
+						
+  					
+  					<span class="value">
+  						
+  				          
+  				              
+  				              
+								  <span id="lblSelskab">IF SKADEFORSIKRING</span>
+							  
+  				            
+  							
+  						
+  						
+  							
+  							
+  								
+  							
+  						
+  					</span>
+  				</div>
+              
+			
+              
+  				<div class="notrequired keyvalue twocol">
+  					
+  						
+  						
+  							
+  							<span class="key">Bevisnummer:</span>
+							
+						
+  					
+  					<span class="value">
+  						
+  				          
+  				              
+  				              
+								  <span id="lblBevisNummer">N/A</span>
+							  
+  				            
+  							
+  						
+  						
+  							
+  							
+  								
+  							
+  						
+  					</span>
+  				</div>
+              
+			
+              
+  				<div class="notrequired keyvalue twocol">
+  					
+  						
+  						
+  							
+  							<span class="key">Status:</span>
+							
+						
+  					
+  					<span class="value">
+  						
+  				          
+  				              
+  				              
+								  <span id="lblStatus">Aktiv</span>
+							  
+  				            
+  							
+  						
+  						
+  							
+  							
+  								
+  							
+  						
+  					</span>
+  				</div>
+              
+			
+              
+  				<div class="notrequired keyvalue twocol">
+  					
+  						
+  						
+  							
+  							<span class="key">Oprettet:</span>
+							
+						
+  					
+  					<span class="value">
+  						
+  				          
+  				              
+  				              
+								  <span id="lblbevisdato">23-02-2023</span>
+							  
+  				            
+  							
+  						
+  						
+  							
+  							
+  								
+  							
+  						
+  					</span>
+  				</div>
+              
+			
+
+			
+		    
+			<div class="ff"><!-- floatfix --></div>
+		</div>
+	
+	
+
+
+
+<h3>
+
+
+
+
+
+
+
+
+
+
+Oversigt over tidligere forsikringer
+</h3>
+
+
+<form id="setForsikringDateForm" action="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=setForsikringDate" method="post">
+	
+
+
+
+<input type="hidden" value="r56q76sjafk36um5duuj99g3lp" name="dmrFormToken">
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+	
+	<div id="id1617998665" class="fieldGroup">
+		
+		<div class="line cols2">
+			<div class="unit formCol colNo1 ">
+		<div class="line" id="forsFraDatoLine">
+    
+      
+      
+        
+        
+          
+          
+            <div class="unit size2of5 colLabel">
+              
+              
+                
+                
+                  
+                    
+                    
+                      
+                      
+                        
+                          <label for="forsFraDato" id="ptr-dmr:portlet.visKT.lblAngvBgrPrd">Angiv begrænset periode for visning:</label>
+                        
+                        
+                      
+                      
+                    
+                  
+                
+              
+              
+              
+              
+
+</div>
+<div class="unit size3of5 colValue">
+  
+        
+        <input tabindex="4781010" id="forsFraDato" name="forsFraDato" class="notrequired text notrequired text date" type="text" value="" maxlength="100">
+        
+            
+        
+            
+            <input tabindex="4781011" type="image" alt="Vælg en dato" style="margin-bottom: -3px;" src="./Vis køretøj - DMR Kerne_files/icon_calendar.gif" onkeypress="return Utils.Page.handleKeyPressed(this, event)" onclick="if(!document.getElementById(&#39;datepicker-forsFraDato&#39;).disabled &amp;&amp; !document.getElementById(&#39;datepicker-forsFraDato&#39;).readOnly){ displayDatePicker(&#39;forsFraDato&#39;, &#39;dd-MM-yyyy&#39;, &#39;-&#39;);}return false;" name="portal:framework.accessibility.btnSelectDate">
+            <span id="datepicker-forsFraDato" class="calendar-wrapper"></span>
+        
+        
+    
+        
+    
+  
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+	<div class="helpButtonInline">
+		<a tabindex="4781012" name="ptr-jump-dmr:portlet.visKT.lblAngvBgrPrd" id="ptr-tip-dmr:portlet.visKT.lblAngvBgrPrd" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4#ptr-jump-dmr:portlet.visKT.lblAngvBgrPrd" class="a-btn-further-info-over" onclick="DMR.Infobox.showFurtherInfo(&#39;lblAngvBgrPrd&#39;, this);"><img class="btn-further-info-over" src="./Vis køretøj - DMR Kerne_files/icon_info.gif" alt="" style=""></a>
+		<div class="further-info" id="further-infolblAngvBgrPrd">
+			<blockquote>
+				<div><img class="btn-further-info" src="./Vis køretøj - DMR Kerne_files/icon_info.gif" alt="info"></div>
+				<div class="infotext">
+
+
+
+
+
+
+
+
+Du kan begrænse antallet af synsresultater ved at angive en periode, du vil se synsresultater for. Dato skal have formatet DD-MM-YYYY, fx 24-12-2011, eller vælges ved hjælp af datovælgeren.
+</div>
+			</blockquote>
+			<div onclick="document.getElementById(&#39;ptr-tip-dmr:portlet.visKT.lblAngvBgrPrd&#39;).focus();" class="closeInfobox"><a tabindex="4781013" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4#ptr-jump-dmr:portlet.visKT.lblAngvBgrPrd" title="Luk hjælpeteksten" onclick="DMR.Infobox.hideFurtherInfo(&#39;lblAngvBgrPrd&#39;);">
+
+
+
+
+
+
+
+
+
+
+Luk
+</a></div>
+		</div>
+	</div>  
+    
+
+
+  
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+        
+            
+        
+    
+    
+
+
+  
+  
+</div>
+
+
+
+
+</div>
+	</div>
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+ 
+
+
+
+
+
+
+	<div class="unit formCol colNo2 ">
+		<div class="line" id="forsTilDatoLine">
+    
+      
+      
+        
+        
+          
+          
+            <div class="unit size2of5 colLabel">
+              
+              
+                
+                
+                  
+                    
+                    
+                      
+                      
+                        
+                          <label for="forsTilDato" id="ptr-dmr:portlet.visKT.lblTil">Til:</label>
+                        
+                        
+                      
+                      
+                    
+                  
+                
+              
+              
+              
+              
+
+</div>
+<div class="unit size3of5 colValue">
+  
+        
+        <input tabindex="4781014" id="forsTilDato" name="forsTilDato" class="notrequired text notrequired text date" type="text" value="" maxlength="100">
+        
+            
+        
+            
+            <input tabindex="4781015" type="image" alt="Vælg en dato" style="margin-bottom: -3px;" src="./Vis køretøj - DMR Kerne_files/icon_calendar.gif" onkeypress="return Utils.Page.handleKeyPressed(this, event)" onclick="if(!document.getElementById(&#39;datepicker-forsTilDato&#39;).disabled &amp;&amp; !document.getElementById(&#39;datepicker-forsTilDato&#39;).readOnly){ displayDatePicker(&#39;forsTilDato&#39;, &#39;dd-MM-yyyy&#39;, &#39;-&#39;);}return false;" name="portal:framework.accessibility.btnSelectDate">
+            <span id="datepicker-forsTilDato" class="calendar-wrapper"></span>
+        
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <input tabindex="4781016" type="submit" name="/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=setForsikringDate" class="notrequired submit submit" id="lblHent" style="" alt="" value="Hent" accesskey="t" onclick="DMR.WaitForLoad.on();">
+    
+
+
+        
+    
+        
+    
+  
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+        
+            
+        
+    
+    
+
+
+  
+  
+</div>
+
+
+
+
+</div>
+	</div> 
+		</div>
+		
+			<hr>
+		
+	</div>
+
+
+</form>
+ 
+
+
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div>
+    
+
+    
+        
+    
+    
+        
+    
+
+    
+        
+    
+
+    
+        
+    
+
+    
+        
+    
+
+    
+        
+        
+
+    
+
+    
+
+    
+        
+        
+    
+
+    
+
+    
+
+        
+        
+            
+                
+                
+                    
+
+
+
+
+
+
+
+
+
+
+Ingen resultater
+
+                
+            
+        
+    
+    
+</div>
+<div class="ff">&nbsp;</div>
+
+
+                
+
+
+            
+            
+            
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        
+            </div>
+            <div class="h-tab-btns-bottom">
+                
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+        
+            <a tabindex="4781017" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=previousPage" id="tabSetPrevBtn" class="guideButtonPreviousBtn" accesskey="f" title="Forrige">
+                    Forrige
+            </a>
+        
+    
+
+
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+        
+            <a tabindex="4781018" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;_eventId=nextPage" id="tabSetNextBtn" class="guideButtonNextBtn" accesskey="n" title="Næste">
+                    Næste
+            </a>
+        
+    
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <div class="printVisitkort">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="cols2">
+  <div class="colNo1 unit">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+
+	
+		
+		
+   	
+   	
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+
+	
+	
+		<h3 class="" title="">
+			Køretøj
+		</h3>
+	
+
+
+    <div class="bluebox">
+      
+        
+          
+            <div class="notrequired keyvalue singleDouble">
+              <span class="key">Stelnummer:</span> <span class="value">KNAB3518AMT826340</span>
+            </div>
+          
+          <div class="notrequired keyvalue singleDouble">
+            <span class="key">Mærke, Model, Variant:</span> <span class="value">KIA, PICANTO, 1.0 5-dørs Man. 5</span>
+          </div>
+          <div class="notrequired keyvalue singleDouble">
+            <span class="key">Art:</span> <span class="value">Personbil</span>
+          </div>
+          <div class="notrequired keyvalue singleDouble">
+            <span class="key">Seneste ændring:</span> <span class="value"> d. 23-02-2023</span>
+          </div>
+        
+        
+      
+      <div class="ff">
+        <!-- floatfix -->
+      </div>
+    </div>
+  </div>
+  <div class="colNo2 unit">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+
+	
+		
+		
+   	
+   	
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+
+	
+	
+		<h3 class="" title="">
+			Registrerings­forhold
+		</h3>
+	
+
+
+    <div class="bluebox">
+      
+        
+          
+            <div class="notrequired keyvalue singleDouble">
+              <span class="key">Registreringsnummer:</span> <span class="value">DP74766</span>
+            </div>
+          
+          <div class="notrequired keyvalue singleDouble">
+            <span class="key">Første registrerings­dato:</span> <span class="value">01-09-2021</span>
+          </div>
+          <div class="notrequired keyvalue singleDouble">
+            <span class="key">Anvendelse:</span> <span class="value">Privat personkørsel</span>
+          </div>
+          <div class="notrequired keyvalue singleDouble">
+            <span class="key">Seneste ændring:</span> <span class="value">Registreret d. 23-02-2023</span>
+          </div>
+        
+        
+      
+      <div class="ff">
+        <!-- floatfix -->
+      </div>
+    </div>
+  </div>
+  <div class="ff">
+    <!-- floatfix -->
+  </div>
+  <br>
+</div>
+
+    </div>
+
+
+
+
+
+        
+    
+
+                    </div>
+                </div>
+                <div class="column" id="left">
+                    <div class="leftInner">
+                        <h1 class="accessibility">Navigation</h1>
+                        <h2>Motorregister</h2>
+                        <div class="inside">
+                            
+
+
+
+
+
+
+
+
+<ul class="level-01">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li><a tabindex="10201" href="https://motorregister.skat.dk/dmr-kerne/frontpage" title="Forside">
+            Forside</a></li>
+
+
+    
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    <li class="open">
+        <a tabindex="10210" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/frontpage" title="Køretøjsdetaljer">Køretøjsdetaljer</a>
+            
+        
+            
+                
+                
+                    <ul class="level-02">
+                
+            
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li><a tabindex="10211" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej" title="Vis køretøj" class="selected">
+            Vis køretøj</a></li>
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </ul>
+        
+    </li>
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    <li class="has-submenu">
+        <a tabindex="10247" href="https://motorregister.skat.dk/dmr-kerne/dk/skat/dmr/front/portlets/registreringsafgift/frontpage/FrontpageController.jpf" title="Registreringsafgift">Registreringsafgift</a>
+            
+        
+    </li>
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    <li class="has-submenu">
+        <a tabindex="10267" href="https://motorregister.skat.dk/dmr-kerne/dk/skat/dmr/front/portlets/plade/frontpage/FrontpageController.jpf" title="Plader">Plader</a>
+            
+        
+    </li>
+
+
+    
+            
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+            
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    <li class="has-submenu">
+        <a tabindex="10352" href="https://motorregister.skat.dk/dmr-kerne/dagbeviser/frontpage" title="Dagsbeviser">Dagsbeviser</a>
+            
+        
+    </li>
+
+
+    
+        
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</ul>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="column" id="rightBar">
+                    <div class="rightInner">
+                        <div class="inside">
+                            
+
+
+
+
+<div>
+    
+        
+        
+            <h1>Du er ikke logget ind.</h1>
+        
+    
+</div>
+                            
+
+
+
+
+
+
+    <h1 class="accessibility">
+        
+
+
+
+
+
+
+
+
+
+
+Funktionsområde
+
+    </h1>
+    <div id="pageTools">
+        
+            <div><a tabindex="4781201" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4&amp;printerFriendly=true" id="dmrPrintFriendly" accesskey="9" target="_blank" title="Åbner et nyt vindue i udskrivningsvenlig format" onclick="DMR.Print.openPrintWindow(); return false;" style="display: block;">Udskriv</a></div>
+        
+            <div><a tabindex="4781202" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4#" id="fontChange" title="Gør skrifttypen på siden større" onclick="Utils.Page.Stylesheet.toggle();DMR.GuideTabs.recalcAllGuideButtons();">Større skrift</a></div>
+        
+    </div>
+
+                            
+                                
+                                    
+
+
+
+<h1>Køretøjsinformation</h1>
+<div class="portlet">
+    <div class="box">
+        <h2>Registreringsnr.</h2>
+        <p>DP74766</p>
+        <h2>Stelnummer</h2>
+        <p>KNAB3518A­MT826340</p>
+        <h2>Mærke, model, variant</h2>
+        <p onclick="window.open(&#39;http://images.google.com/images?q=KIA+PICANTO+1.0 5-dørs Man. 5&#39;,&#39;_blank&#39;,&#39;location=no,toolbar=no,status=no,directories=no,menubar=no&#39;)">
+            KIA PICANTO 1.0 5-dørs Man. 5</p>
+        <h2>Art, anvendelse</h2>
+        <p>Personbil, Privat personkørsel</p>
+        
+            <h2>1. registreringsdato</h2>
+            <p>01-09-2021</p>
+        
+        
+    </div>
+</div>
+                                
+                                
+                                
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="ff"></div>
+            </div>
+        </div>
+        <div id="WaitForLoad-light" class="WaitForLoad-content">
+            <div class="WaitForLoad-black"></div>
+            <div class="WaitForLoad-top">
+                <img class="WaitForLoad-logo" height="49" src="./Vis køretøj - DMR Kerne_files/skatdk_logo_SMALL_RGB_WHITE.png" alt="Systemet arbejder, vent venligst">
+            </div>
+            <div class="WaitForLoad-inner">
+                <img width="100" height="100" src="./Vis køretøj - DMR Kerne_files/spinner.gif" alt="Systemet arbejder, vent venligst"><br> <br> <span class="WaitForLoad-text">&nbsp; &nbsp;Et
+        øjeblik …</span>
+            </div>
+        </div>
+        <div id="WaitForLoad-fade" class="WaitForLoad-overlay"></div>
+        <div id="PopupUdskriftsKvittering" class="popupBox">
+            <div style="margin-bottom: 15px;">
+                <strong> Ønsker du at udskrive en kopi af kvitteringen? </strong>
+            </div>
+            <div>
+                <input style="width: 40px;" size="10" class="submit" type="button" onclick="Utils.hide(&#39;PopupUdskriftsKvittering&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);print();" value="Ja">
+                <input style="width: 40px;" class="submit" type="button" onclick="Utils.hide(&#39;PopupUdskriftsKvittering&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);" value="Nej">
+            </div>
+        </div>
+        <div id="PopupAfgiftBerigtigetConfirm" class="popupBox">
+            <div style="margin-bottom: 15px;">
+                <strong> Bemærk: Du har valgt at køretøjet allerede er afgiftsberigtiget. Vær opmærksom på, at eventuel
+                    urigtig angivelse kan medføre strafansvar i henhold til § 27, stk. 1, nr. 1 i Lovbekendtgørelse nr.
+                    836 af
+                    01.07.2011 (Registreringsafgiftsloven). Kan du bekræfte, at du har foretaget det korrekte
+                    valg? </strong>
+            </div>
+            <div>
+                <input style="width: 40px;" size="10" class="submit" type="button" onclick="Utils.hide(&#39;PopupAfgiftBerigtigetConfirm&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);" value="Ja">
+                <input style="width: 40px;" class="submit" type="button" onclick="Utils.hide(&#39;PopupAfgiftBerigtigetConfirm&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);$(&#39;lblAngivAfgiftsberigtigelse_0&#39;).checked = false;" value="Nej">
+            </div>
+        </div>
+        <div id="PctValg30Confirm" class="popupBox">
+            <div style="margin-bottom: 15px;">
+                <strong> Du har valgt at dette er en varebil der skal berigtiges
+                    som 30%. Ønsker du at fortsætte? </strong>
+            </div>
+            <div>
+                <input style="width: 40px;" size="10" class="submit" type="button" onclick="Utils.hide(&#39;PctValg30Confirm&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);" value="Ja"> <input style="width: 40px;" class="submit" type="button" onclick="Utils.hide(&#39;PctValg30Confirm&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);$(&#39;lblAfgiftsberigtigetSom_0&#39;).checked = false;$(&#39;lblAfgiftsberigtigetSom_1&#39;).checked = true" value="Nej">
+            </div>
+        </div>
+        <div id="PctValg50Confirm" class="popupBox">
+            <div style="margin-bottom: 15px;">
+                <strong> Du har valgt at dette er en varebil der skal berigtiges
+                    som 50%. Ønsker du at fortsætte? </strong>
+            </div>
+            <div>
+                <input style="width: 40px;" size="10" class="submit" type="button" onclick="Utils.hide(&#39;PctValg50Confirm&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);" value="Ja"> <input style="width: 40px;" class="submit" type="button" onclick="Utils.hide(&#39;PctValg50Confirm&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);$(&#39;lblAfgiftsberigtigetSom_1&#39;).checked = false;$(&#39;lblAfgiftsberigtigetSom_0&#39;).checked = true" value="Nej">
+            </div>
+        </div>
+        <div id="PctValg50ConfirmL129" class="popupBox">
+            <div style="margin-bottom: 15px;">
+                <strong> Du har valgt at dette er en varebil der skal berigtiges
+                    som 50%. Ønsker du at fortsætte? </strong>
+            </div>
+            <div>
+                <input style="width: 40px;" size="10" class="submit" type="button" onclick="Utils.hide(&#39;PctValg50ConfirmL129&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);" value="Ja"> <input style="width: 40px;" class="submit" type="button" onclick="Utils.hide(&#39;PctValg50ConfirmL129&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);$(&#39;lblAfgiftsberigtigetSom_0&#39;).checked = false;$(&#39;lblAfgiftsberigtigetSom_1&#39;).checked = true" value="Nej">
+            </div>
+        </div>
+        <div id="PctValg50MaxConfirmL129" class="popupBox">
+            <div style="margin-bottom: 15px;">
+                <strong> Du har valgt at dette er en varebil der skal berigtiges
+                    som 50% max. Ønsker du at fortsætte? </strong>
+            </div>
+            <div>
+                <input style="width: 40px;" size="10" class="submit" type="button" onclick="Utils.hide(&#39;PctValg50MaxConfirmL129&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);" value="Ja">
+                <input style="width: 40px;" class="submit" type="button" onclick="Utils.hide(&#39;PctValg50MaxConfirmL129&#39;);Utils.hide(&#39;WaitForLoad-fade&#39;);$(&#39;lblAfgiftsberigtigetSom_1&#39;).checked = false;$(&#39;lblAfgiftsberigtigetSom_0&#39;).checked = true" value="Nej">
+            </div>
+        </div>
+        <div id="ForeignUserNotAllowed" class="popupBox">
+            <div style="margin-bottom: 15px;">
+                <strong>Valg af person med udenlandsk adresse er ikke tilladt</strong>
+            </div>
+            <div><input style="width: 60px;" size="10" type="button" class="submit" onclick="Utils.hide(&#39;WaitForLoad-fade&#39;);Utils.hide(&#39;ForeignUserNotAllowed&#39;);" value="Godkend">
+            </div>
+        </div>
+        <div id="footerWrapper">
+            <div id="footer">
+                <div id="upperFooter">
+                    <span id="contactInfo"> Kontakt os: 72 22 18 18 </span> <span id="aboutCookies"> <a tabindex="30201" target="_blank" href="http://skat.dk/skat.aspx?oid=3038&amp;ik_navn=bundmenu">Om cookies</a>
+        </span>
+                </div>
+                <div id="lowerFooter">
+                    skat.dk er Skatteforvaltningens digitale indgang til selvbetjening og vejledning om skatter og
+                    afgifter
+                    <!--
+            Kontakt os: 72 22 18 18
+             -->
+                </div>
+            </div>
+            <div class="anchor">
+                <a tabindex="30202" href="https://motorregister.skat.dk/dmr-kerne/koeretoejdetaljer/visKoeretoej?execution=e1s4#header" id="ptr-29"> til top </a>
+            </div>
+        </div>
+        <noscript>
+            <!--[if IE 7]>
+            <style type="text/css">
+                #left {
+                    position: static !important;
+                    margin: 0px !important;
+                    float: left !important;;
+                }
+
+                .leftInner {
+                    position: absolute;
+                    left: 0px;
+                    top: 127px;
+                    width: 168px;
+                }
+
+                #center {
+                    position: static !important;
+                    float: right !important;;
+                    xposition: absolute ! importnant;
+                }
+
+                #rightBar {
+                    position: static !important;
+                    float: right !important;
+                    padding: 0px !important;
+                }
+
+                .rightInner {
+                    position: absolute;
+                    top: 127px;
+                    right: 0px;
+                    width: 168px;
+                }
+            </style>
+            <![endif]-->
+        </noscript>
+
+
+
+<script src="./Vis køretøj - DMR Kerne_files/index"></script><script src="./Vis køretøj - DMR Kerne_files/do-loader.js.download" integrity="sha384-In8zc5IqCJH6i3EsT6I5W2B6s2X+6uU+5p0w30IHRZlVSPKtRb+CiYwRFl+9kVaq" crossorigin="anonymous"></script></body></html>
