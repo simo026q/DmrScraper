@@ -8,30 +8,56 @@ namespace DmrScraper.Benchmarks;
 [MemoryDiagnoser(false)]
 public class HtmlReadBenchmarks
 {
-    private HtmlDocument _htmlDocument;
+    private HtmlDocument _technicalInformationHtml;
+    private HtmlDocument _insuranceHtml;
 
     [GlobalSetup]
     public void Setup()
     {
         //using var fs = File.OpenRead(@".\DMR - Køretøj.html");
-        using var fs = File.OpenRead(@".\DMR - Tekniske oplysninger.html");
 
-        _htmlDocument = new HtmlDocument();
-        _htmlDocument.Load(fs);
+        _technicalInformationHtml = LoadHtmlFile(@".\DMR - Tekniske oplysninger.html");
+        _insuranceHtml = LoadHtmlFile(@".\DMR - Forsikring.html");
+    }
+
+    private static HtmlDocument LoadHtmlFile(string path)
+    {
+        using var fs = File.OpenRead(path);
+
+        var htmlDocument = new HtmlDocument();
+        htmlDocument.Load(fs);
+
+        return htmlDocument;
     }
 
     [Benchmark]
-    public List<KeyValuePair<string, string>> Next()
+    public List<KeyValuePair<string, string>> NextTechnical()
     {
-        var reader = new DmrHtmlReaderNext(_htmlDocument);
+        var reader = new DmrHtmlReaderNext(_technicalInformationHtml, DmrHtmlReaderNext.ReadStrategy.InsideFieldGroup);
 
         return reader.ReadKeyValuePairs(includeEmpty: false, includeFalse: true).ToList();
     }
 
     [Benchmark]
-    public List<KeyValuePair<string, string>> Current()
+    public List<KeyValuePair<string, string>> CurrentTechnical()
     {
-        var reader = new DmrHtmlReaderCurrent(_htmlDocument);
+        var reader = new DmrHtmlReaderCurrent(_technicalInformationHtml);
+
+        return reader.ReadKeyValuePairs(includeEmpty: false, includeFalse: true);
+    }
+
+    [Benchmark]
+    public List<KeyValuePair<string, string>> NextInsurance()
+    {
+        var reader = new DmrHtmlReaderNext(_insuranceHtml, DmrHtmlReaderNext.ReadStrategy.InsideContent);
+
+        return reader.ReadKeyValuePairs(includeEmpty: false, includeFalse: true).ToList();
+    }
+
+    [Benchmark]
+    public List<KeyValuePair<string, string>> CurrentInsurance()
+    {
+        var reader = new DmrHtmlReaderCurrent(_insuranceHtml);
 
         return reader.ReadKeyValuePairs(includeEmpty: false, includeFalse: true);
     }
@@ -45,7 +71,7 @@ internal static class HtmlNodeExtensions
     }
 }
 
-internal class DmrHtmlReaderNext(HtmlNode contentNode)
+internal class DmrHtmlReaderNext(HtmlNode contentNode, DmrHtmlReaderNext.ReadStrategy readStrategy)
 {
     private static class XPaths
     {
@@ -53,21 +79,26 @@ internal class DmrHtmlReaderNext(HtmlNode contentNode)
         public static readonly XPathExpression FieldGroup = XPathExpression.Compile("./div[@class='fieldGroup']");
         public static readonly XPathExpression FieldGroupHeader = XPathExpression.Compile("./h3[@class='fieldGroupHeader']");
         public static readonly XPathExpression KeyValueContainer = XPathExpression.Compile(".//div[contains(@class,'keyvalue')]");
-        public static readonly XPathExpression KeyValueContainerOutsideFieldGroup = XPathExpression.Compile(".//div[contains(@class,'keyvalue') and not(ancestor::div[@class='fieldGroup'])]");
         public static readonly XPathExpression KeyValueKey = XPathExpression.Compile("./span[@class='key']");
         public static readonly XPathExpression KeyValueValue = XPathExpression.Compile("./span[@class='value']");
         public static readonly XPathExpression Line = XPathExpression.Compile(".//div[contains(@class,'line')]");
-        public static readonly XPathExpression LineOutsideFieldGroup = XPathExpression.Compile(".//div[contains(@class,'line') and not(ancestor::div[@class='fieldGroup'])]");
         public static readonly XPathExpression LineKey = XPathExpression.Compile("./div[contains(@class,'colLabel')]//label");
         public static readonly XPathExpression LineValue = XPathExpression.Compile("./div[contains(@class,'colValue')]/span");
     }
 
+    public enum ReadStrategy
+    {
+        InsideFieldGroup,
+        InsideContent
+    }
+
     private readonly HtmlNode? _contentNode = contentNode;
+    private readonly ReadStrategy _readStrategy = readStrategy;
 
     public bool HasContent => _contentNode != null;
 
-    public DmrHtmlReaderNext(HtmlDocument htmlDocument)
-        : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content))
+    public DmrHtmlReaderNext(HtmlDocument htmlDocument, ReadStrategy readStrategy)
+        : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content), readStrategy)
     {
     }
 
@@ -76,10 +107,15 @@ internal class DmrHtmlReaderNext(HtmlNode contentNode)
         if (_contentNode == null)
             return [];
 
-        return ReadKeyValuePairsFromHtmlNode(_contentNode, includeEmpty, includeFalse);
+        return _readStrategy switch
+        {
+            ReadStrategy.InsideFieldGroup => ReadKeyValuePairsFromFieldGroup(_contentNode, includeEmpty, includeFalse),
+            ReadStrategy.InsideContent => ReadKeyValuePairsFromContent(_contentNode, includeEmpty, includeFalse),
+            _ => throw new ArgumentOutOfRangeException(nameof(_readStrategy), _readStrategy, null),
+        };
     }
 
-    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
+    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromFieldGroup(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
     {
         var fieldGroupNodes = htmlNode.SelectNodesOrEmpty(XPaths.FieldGroup);
 
@@ -169,14 +205,17 @@ internal class DmrHtmlReaderNext(HtmlNode contentNode)
                 yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
             }
         }
+    }
 
-        var keyValuePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.KeyValueContainerOutsideFieldGroup, XPaths.KeyValueKey, XPaths.KeyValueValue, includeUnknown, includeFalse);
+    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromContent(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
+    {
+        var keyValuePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.KeyValueContainer, XPaths.KeyValueKey, XPaths.KeyValueValue, includeUnknown, includeFalse);
         foreach (var pair in keyValuePairs)
         {
             yield return pair;
         }
 
-        var linePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.LineOutsideFieldGroup, XPaths.LineKey, XPaths.LineValue, includeUnknown, includeFalse);
+        var linePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.Line, XPaths.LineKey, XPaths.LineValue, includeUnknown, includeFalse);
         foreach (var pair in linePairs)
         {
             yield return pair;
