@@ -16,8 +16,16 @@ public enum AdditionalSearchSheets
     /// </summary>
     TechnicalInformation = 1,
 
+    /// <summary>
+    /// Include inspection details sheet.
+    /// </summary>
     Inspection = 2,
+
+    /// <summary>
+    /// Include insurance details sheet.
+    /// </summary>
     Insurance = 4,
+
     //Permits = 8,
 
     /// <summary>
