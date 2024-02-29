@@ -25,7 +25,7 @@ using DmrScraper;
 
 IDmrService dmrService = new DmrService(new HttpClient());
 
-DetailsResult? details = await dmrService.GetDetailsAsync(searchString: "AA11111", SearchCriteria.RegistrationNumber, AdditionalSearchSheets.TechnicalInformation, new DmrServiceOptions() { IncludeEmptyValues = true });
+DetailsResult? details = await dmrService.GetDetailsAsync(searchString: "AA11111", SearchCriteria.RegistrationNumber, AdditionalSearchSheets.All, new DmrServiceOptions() { IncludeEmptyValues = true });
 
 if (details == null)
 {
@@ -33,6 +33,14 @@ if (details == null)
 }
 else
 {
+    // Console.WriteLine();
+    // Console.WriteLine("All details:");
+    // Console.WriteLine();
+    // foreach (var (key, value) in details.GetAllCombined())
+    // {
+    //     Console.WriteLine($"{key}: {value}");
+    // }
+
     Console.WriteLine();
     Console.WriteLine("Vehicle details:");
     Console.WriteLine();
@@ -45,6 +53,22 @@ else
     Console.WriteLine("Technical information:");
     Console.WriteLine();
     foreach (var (key, value) in details.TechnicalInformation)
+    {
+        Console.WriteLine($"{key}: {value}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Inspection details:");
+    Console.WriteLine();
+    foreach (var (key, value) in details.Inspection)
+    {
+        Console.WriteLine($"{key}: {value}");
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("Insurance details:");
+    Console.WriteLine();
+    foreach (var (key, value) in details.Insurance)
     {
         Console.WriteLine($"{key}: {value}");
     }
