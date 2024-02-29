@@ -4,7 +4,7 @@ using System.Xml.XPath;
 
 namespace DmrScraper.Internal;
 
-internal class DmrHtmlReader(HtmlNode contentNode)
+internal class DmrHtmlReader(HtmlNode contentNode, DmrHtmlReader.ReadStrategy readStrategy)
 {
     private static class XPaths
     {
@@ -19,19 +19,36 @@ internal class DmrHtmlReader(HtmlNode contentNode)
         public static readonly XPathExpression LineValue = XPathExpression.Compile("./div[contains(@class,'colValue')]/span");
     }
 
-    private readonly HtmlNode _contentNode = contentNode;
+    public enum ReadStrategy
+    {
+        InsideFieldGroup,
+        InsideContent
+    }
 
-    public DmrHtmlReader(HtmlDocument htmlDocument)
-        : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content))
+    private readonly HtmlNode? _contentNode = contentNode;
+    private readonly ReadStrategy _readStrategy = readStrategy;
+
+    public bool HasContent => _contentNode != null;
+
+    public DmrHtmlReader(HtmlDocument htmlDocument, ReadStrategy readStrategy)
+        : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content), readStrategy)
     {
     }
 
     public IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairs(bool includeEmpty, bool includeFalse)
     {
-        return ReadKeyValuePairsFromHtmlNode(_contentNode, includeEmpty, includeFalse);
+        if (_contentNode == null)
+            return [];
+
+        return _readStrategy switch
+        {
+            ReadStrategy.InsideFieldGroup => ReadKeyValuePairsFromFieldGroup(_contentNode, includeEmpty, includeFalse),
+            ReadStrategy.InsideContent => ReadKeyValuePairsFromContent(_contentNode, includeEmpty, includeFalse),
+            _ => throw new ArgumentOutOfRangeException(nameof(_readStrategy), _readStrategy, null),
+        };
     }
 
-    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromHtmlNode(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
+    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromFieldGroup(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
     {
         var fieldGroupNodes = htmlNode.SelectNodesOrEmpty(XPaths.FieldGroup);
 
@@ -50,26 +67,25 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
                 var value = valueNode.InnerText.Trim();
 
-                if (string.IsNullOrWhiteSpace(value)
-                    || !includeUnknown && value == "-"
-                    || !includeFalse && value == "Nej")
+                if (!IsValueValid(value, includeUnknown, includeFalse))
                 {
                     continue;
                 }
 
-                StringBuilder keyBuilder = new();
+                string key = keyNode.InnerText.Trim().TrimEnd(':');
 
                 if (header != null)
                 {
+                    StringBuilder keyBuilder = new();
+
                     keyBuilder.Append(header);
                     keyBuilder.Append('.');
+                    keyBuilder.Append(key);
+
+                    key = keyBuilder.ToString();
                 }
 
-                var key = keyNode.InnerText.Trim().TrimEnd(':');
-
-                keyBuilder.Append(key);
-
-                yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
+                yield return new KeyValuePair<string, string>(key, value);
             }
 
             var lineDivs = fieldGroupNode.SelectNodesOrEmpty(XPaths.Line);
@@ -93,9 +109,7 @@ internal class DmrHtmlReader(HtmlNode contentNode)
 
                 var value = valueNode.InnerText.Trim();
 
-                if (string.IsNullOrWhiteSpace(value)
-                    || !includeUnknown && value == "-"
-                    || !includeFalse && value == "Nej")
+                if (!IsValueValid(value, includeUnknown, includeFalse))
                 {
                     continue;
                 }
@@ -124,6 +138,58 @@ internal class DmrHtmlReader(HtmlNode contentNode)
                 yield return new KeyValuePair<string, string>(keyBuilder.ToString(), value);
             }
         }
+    }
+
+    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromContent(HtmlNode htmlNode, bool includeUnknown, bool includeFalse)
+    {
+        var keyValuePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.KeyValueContainer, XPaths.KeyValueKey, XPaths.KeyValueValue, includeUnknown, includeFalse);
+        foreach (var pair in keyValuePairs)
+        {
+            yield return pair;
+        }
+
+        var linePairs = ReadKeyValuePairsFromNodeBySelectors(htmlNode, XPaths.Line, XPaths.LineKey, XPaths.LineValue, includeUnknown, includeFalse);
+        foreach (var pair in linePairs)
+        {
+            yield return pair;
+        }
+    }
+
+    private static IEnumerable<KeyValuePair<string, string>> ReadKeyValuePairsFromNodeBySelectors(HtmlNode rootNode, 
+        XPathExpression containerExpression, 
+        XPathExpression keyExpression, 
+        XPathExpression valueExpression, 
+        bool includeUnknown, 
+        bool includeFalse)
+    {
+        var keyValueNodes = rootNode.SelectNodesOrEmpty(containerExpression);
+
+        foreach (var keyValueNode in keyValueNodes)
+        {
+            var keyNode = keyValueNode.SelectSingleNode(keyExpression);
+            var valueNode = keyValueNode.SelectSingleNode(valueExpression);
+
+            if (keyNode == null || valueNode == null)
+                continue;
+
+            var value = valueNode.InnerText.Trim();
+
+            if (!IsValueValid(value, includeUnknown, includeFalse))
+            {
+                continue;
+            }
+
+            var key = keyNode.InnerText.Trim().TrimEnd(':');
+
+            yield return new KeyValuePair<string, string>(key, value);
+        }
+    }
+
+    private static bool IsValueValid(string value, bool includeUnknown, bool includeFalse)
+    {
+        return !string.IsNullOrWhiteSpace(value)
+            && (includeUnknown || value != "-")
+            && (includeFalse || value != "Nej");
     }
 
     private static string? GetFormGroupHeader(HtmlNode fieldGroupNode)
