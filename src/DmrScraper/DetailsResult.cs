@@ -8,21 +8,25 @@ public sealed class DetailsResult
     /// <summary>
     /// Gets the details of the vehicle.
     /// </summary>
+    /// <remarks>The key is not unique and may contain duplicates.</remarks>
     public IEnumerable<KeyValuePair<string, string>> Vehicle { get; }
 
     /// <summary>
     /// Gets the technical information about the vehicle.
     /// </summary>
+    /// <remarks>The key is not unique and may contain duplicates.</remarks>
     public IEnumerable<KeyValuePair<string, string>> TechnicalInformation { get; }
 
     /// <summary>
     /// Gets the inspection details of the vehicle.
     /// </summary>
+    /// <remarks>The key is not unique and may contain duplicates.</remarks>
     public IEnumerable<KeyValuePair<string, string>> Inspection { get; }
 
     /// <summary>
     /// Gets the insurance details of the vehicle.
     /// </summary>
+    /// <remarks>The key is not unique and may contain duplicates.</remarks>
     public IEnumerable<KeyValuePair<string, string>> Insurance { get; }
 
     //public IEnumerable<KeyValuePair<string, string>> Permits { get; }
@@ -48,6 +52,7 @@ public sealed class DetailsResult
     /// <summary>
     /// Gets all combined details of the vehicle including vehicle details, technical information, inspection, and insurance.
     /// </summary>
+    /// <remarks>The key is not unique and may contain duplicates.</remarks>
     /// <returns>All combined details of the vehicle.</returns>
     public IEnumerable<KeyValuePair<string, string>> GetAllCombined()
     {

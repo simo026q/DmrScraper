@@ -1,10 +1,16 @@
 ﻿using DmrScraper;
+using System.Diagnostics;
 
 IDmrService dmrService = new DmrService(new HttpClient());
 
 string registrationNumber = GeetRegistrationNumber();
 
+var stopwatch = Stopwatch.StartNew();
+
 DetailsResult? details = await dmrService.GetDetailsAsync(registrationNumber, SearchCriteria.RegistrationNumber, AdditionalSearchSheets.All, new DmrServiceOptions() { IncludeEmptyValues = true });
+
+stopwatch.Stop();
+Console.WriteLine($"Responed in {stopwatch.ElapsedMilliseconds} ms");
 
 if (details == null)
 {

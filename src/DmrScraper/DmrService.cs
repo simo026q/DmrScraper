@@ -12,7 +12,9 @@ public class DmrService(HttpClient client)
     /// <inheritdoc cref="IDmrService"/>
     public async Task<DetailsResult?> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions? options = null)
     {
-        var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
+        SearchInfo? searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
+        if (searchInfo == null)
+            return null;
 
         return await GetDetailsFromSearchInfoAsync(searchInfo, searchSheets, options ?? DmrServiceOptions.Default);
     }
@@ -25,11 +27,20 @@ public class DmrService(HttpClient client)
 
     private async Task<DetailsResult?> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
-        var content = searchInfo.GetFormUrlEncodedContent();
-        var execution = searchInfo.Execution;
+        FormUrlEncodedContent content = searchInfo.GetFormUrlEncodedContent();
 
-        HttpResponseMessage searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(execution), content);
-
+        HttpResponseMessage searchResultResponse;
+        try
+        {
+            searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(searchInfo.Execution), content);
+            if (!searchResultResponse.IsSuccessStatusCode)
+                return null;
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+        
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
         var reader = new DmrHtmlReader(searchResult, DmrHtmlReader.ReadStrategy.InsideFieldGroup);
@@ -37,38 +48,48 @@ public class DmrService(HttpClient client)
         if (!reader.HasContent)
             return null;
 
-        var vehicleDetails = reader.ReadKeyValuePairs(options.IncludeEmptyValues, options.IncludeFalseValues);
+        IEnumerable<KeyValuePair<string, string>> vehicleDetails = reader.ReadKeyValuePairs(options.IncludeEmptyValues, options.IncludeFalseValues);
 
-        execution.IncrementActionId();
+        Task<IEnumerable<KeyValuePair<string, string>>> technicalTask = searchSheets.HasFlag(AdditionalSearchSheets.TechnicalInformation) 
+            ? GetDetailsFromPageIndexAsync(1, searchInfo.Execution, DmrHtmlReader.ReadStrategy.InsideFieldGroup, options) 
+            : Task.FromResult(Enumerable.Empty<KeyValuePair<string, string>>());
 
-        IEnumerable<KeyValuePair<string, string>> technicalInformation = searchSheets.HasFlag(AdditionalSearchSheets.TechnicalInformation)
-            ? await GetDetailsFromPageIndexAsync(1, execution, DmrHtmlReader.ReadStrategy.InsideFieldGroup, options)
-            : [];
+        Task<IEnumerable<KeyValuePair<string, string>>> inspectionTask = searchSheets.HasFlag(AdditionalSearchSheets.Inspection) 
+            ? GetDetailsFromPageIndexAsync(2, searchInfo.Execution, DmrHtmlReader.ReadStrategy.InsideContent, options) 
+            : Task.FromResult(Enumerable.Empty<KeyValuePair<string, string>>());
 
-        IEnumerable<KeyValuePair<string, string>> inspectionDetails = searchSheets.HasFlag(AdditionalSearchSheets.Inspection)
-            ? await GetDetailsFromPageIndexAsync(2, execution, DmrHtmlReader.ReadStrategy.InsideContent, options)
-            : [];
+        Task<IEnumerable<KeyValuePair<string, string>>> insuranceTask = searchSheets.HasFlag(AdditionalSearchSheets.Insurance) 
+            ? GetDetailsFromPageIndexAsync(3, searchInfo.Execution, DmrHtmlReader.ReadStrategy.InsideContent, options) 
+            : Task.FromResult(Enumerable.Empty<KeyValuePair<string, string>>());
 
-        IEnumerable<KeyValuePair<string, string>> insuranceDetails = searchSheets.HasFlag(AdditionalSearchSheets.Insurance)
-            ? await GetDetailsFromPageIndexAsync(3, execution, DmrHtmlReader.ReadStrategy.InsideContent, options)
-            : [];
+        await Task.WhenAll(technicalTask, inspectionTask, insuranceTask);
 
-        return new DetailsResult(vehicleDetails, technicalInformation, inspectionDetails, insuranceDetails);
+        return new DetailsResult(vehicleDetails, technicalTask.Result, inspectionTask.Result, insuranceTask.Result);
     }
 
-    private async Task<SearchInfo> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)
+    private async Task<SearchInfo?> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)
     {
-        HttpResponseMessage searchPageResponse = await _client.GetAsync(DmrUriBuilder.BaseUri);
+        HttpResponseMessage searchPageResponse;
+        try
+        {
+            searchPageResponse = await _client.GetAsync(DmrUriBuilder.BaseUri);
+            if (!searchPageResponse.IsSuccessStatusCode)
+                return null;
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
 
         HtmlDocument htmlDocument = await searchPageResponse.Content.ReadAsHtmlDocumentAsync();
 
         HtmlNode formNode = htmlDocument.DocumentNode.SelectSingleNode("//form[@id='searchForm']");
-        if (formNode == null) 
-            throw new InvalidOperationException("Search form not found");
+        if (formNode == null)
+            return null;
 
         HtmlNode formTokenNode = formNode.SelectSingleNode("//input[@name='dmrFormToken']");
-        if (formTokenNode == null) 
-            throw new InvalidOperationException("Form token not found");
+        if (formTokenNode == null)
+            return null;
 
         string formAction = formNode.GetAttributeValue("action", string.Empty);
         string formToken = formTokenNode.GetAttributeValue("value", string.Empty);
@@ -78,11 +99,19 @@ public class DmrService(HttpClient client)
 
     private async Task<IEnumerable<KeyValuePair<string, string>>> GetDetailsFromPageIndexAsync(int pageIndex, DmrExecution execution, DmrHtmlReader.ReadStrategy readStrategy, DmrServiceOptions options)
     {
-        HttpResponseMessage pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, pageIndex));
+        HttpResponseMessage pageResponse;
+        try
+        {
+            pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, pageIndex));
+            if (!pageResponse.IsSuccessStatusCode)
+                return [];
+        }
+        catch (HttpRequestException)
+        {
+            return [];
+        }
 
         HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
-
-        execution.IncrementActionId();
 
         var reader = new DmrHtmlReader(pageHtml, readStrategy);
 
