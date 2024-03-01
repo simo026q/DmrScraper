@@ -15,7 +15,7 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Description>Open-source web Scraper for the Danish Motor Registry.</Description>
   </PropertyGroup>
 
