@@ -12,7 +12,9 @@ public class DmrService(HttpClient client)
     /// <inheritdoc cref="IDmrService"/>
     public async Task<DetailsResult?> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions? options = null)
     {
-        SearchInfo searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
+        SearchInfo? searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
+        if (searchInfo == null)
+            return null;
 
         return await GetDetailsFromSearchInfoAsync(searchInfo, searchSheets, options ?? DmrServiceOptions.Default);
     }
@@ -27,10 +29,18 @@ public class DmrService(HttpClient client)
     {
         FormUrlEncodedContent content = searchInfo.GetFormUrlEncodedContent();
 
-        HttpResponseMessage searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(searchInfo.Execution), content);
-        if (!searchResultResponse.IsSuccessStatusCode)
+        HttpResponseMessage searchResultResponse;
+        try
+        {
+            searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(searchInfo.Execution), content);
+            if (!searchResultResponse.IsSuccessStatusCode)
+                return null;
+        }
+        catch (HttpRequestException)
+        {
             return null;
-
+        }
+        
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
         var reader = new DmrHtmlReader(searchResult, DmrHtmlReader.ReadStrategy.InsideFieldGroup);
@@ -57,19 +67,29 @@ public class DmrService(HttpClient client)
         return new DetailsResult(vehicleDetails, technicalTask.Result, inspectionTask.Result, insuranceTask.Result);
     }
 
-    private async Task<SearchInfo> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)
+    private async Task<SearchInfo?> GetSearchInfoAsync(string searchString, SearchCriteria searchCriteria)
     {
-        HttpResponseMessage searchPageResponse = await _client.GetAsync(DmrUriBuilder.BaseUri);
+        HttpResponseMessage searchPageResponse;
+        try
+        {
+            searchPageResponse = await _client.GetAsync(DmrUriBuilder.BaseUri);
+            if (!searchPageResponse.IsSuccessStatusCode)
+                return null;
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
 
         HtmlDocument htmlDocument = await searchPageResponse.Content.ReadAsHtmlDocumentAsync();
 
         HtmlNode formNode = htmlDocument.DocumentNode.SelectSingleNode("//form[@id='searchForm']");
-        if (formNode == null) 
-            throw new InvalidOperationException("Search form not found");
+        if (formNode == null)
+            return null;
 
         HtmlNode formTokenNode = formNode.SelectSingleNode("//input[@name='dmrFormToken']");
-        if (formTokenNode == null) 
-            throw new InvalidOperationException("Form token not found");
+        if (formTokenNode == null)
+            return null;
 
         string formAction = formNode.GetAttributeValue("action", string.Empty);
         string formToken = formTokenNode.GetAttributeValue("value", string.Empty);
@@ -79,9 +99,17 @@ public class DmrService(HttpClient client)
 
     private async Task<IEnumerable<KeyValuePair<string, string>>> GetDetailsFromPageIndexAsync(int pageIndex, DmrExecution execution, DmrHtmlReader.ReadStrategy readStrategy, DmrServiceOptions options)
     {
-        HttpResponseMessage pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, pageIndex));
-        if (!pageResponse.IsSuccessStatusCode) 
+        HttpResponseMessage pageResponse;
+        try
+        {
+            pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, pageIndex));
+            if (!pageResponse.IsSuccessStatusCode)
+                return [];
+        }
+        catch (HttpRequestException)
+        {
             return [];
+        }
 
         HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
 
