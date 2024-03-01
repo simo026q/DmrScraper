@@ -1,43 +1,40 @@
 ﻿namespace DmrScraper.Internal;
 
-internal struct DmrExecution
+internal sealed class DmrExecution(int executionId, int actionId)
 {
     private const string ExecutionIdPrefix = "e";
     private const string ActionIdPrefix = "s";
 
-    public int ExecutionId { get; }
-    public int ActionId { get; private set; }
+    private int _actionId = actionId;
 
-    public DmrExecution(int executionId, int actionId)
+    public int ExecutionId { get; } = executionId;
+    public int ActionId
     {
-        ExecutionId = executionId;
-        ActionId = actionId;
+        get
+        {
+            int actionId = _actionId;
+            Interlocked.Increment(ref _actionId);
+            return actionId;
+        }
     }
 
-    public void IncrementActionId()
-    {
-        ActionId++;
-    }
-
-    public override readonly string ToString()
-    {
-        return $"{ExecutionIdPrefix}{ExecutionId}{ActionIdPrefix}{ActionId}";
-    }
+    public override string ToString() 
+        => $"{ExecutionIdPrefix}{ExecutionId}{ActionIdPrefix}{ActionId}";
 
     private const string ExecutionParameter = "execution=";
     private const char QuerySeparator = '&';
 
     public static DmrExecution FromUri(ReadOnlySpan<char> url)
     {
-        var executionParamIdx = url.IndexOf(ExecutionParameter);
+        int executionParamIdx = url.IndexOf(ExecutionParameter);
         if (executionParamIdx == -1)
             throw new ArgumentException("URL does not contain the execution parameter", nameof(url));
 
         url = url.Slice(executionParamIdx + ExecutionParameter.Length);
 
-        var querySeparatorIdx = url.IndexOf(QuerySeparator);
+        int querySeparatorIdx = url.IndexOf(QuerySeparator);
 
-        var execution = querySeparatorIdx == -1
+        ReadOnlySpan<char> execution = querySeparatorIdx == -1
             ? url
             : url.Slice(0, querySeparatorIdx);
 
@@ -46,14 +43,14 @@ internal struct DmrExecution
 
     public static DmrExecution FromExecution(ReadOnlySpan<char> execution)
     {
-        var executionIdIdx = execution.IndexOf(ExecutionIdPrefix) + ExecutionIdPrefix.Length;
-        var actionIdIdx = execution.IndexOf(ActionIdPrefix) + ActionIdPrefix.Length;
+        int executionIdIdx = execution.IndexOf(ExecutionIdPrefix) + ExecutionIdPrefix.Length;
+        int actionIdIdx = execution.IndexOf(ActionIdPrefix) + ActionIdPrefix.Length;
 
-        var executionIdSpan = execution.Slice(executionIdIdx, actionIdIdx - executionIdIdx - ActionIdPrefix.Length);
-        var actionIdSpan = execution.Slice(actionIdIdx);
+        ReadOnlySpan<char> executionIdSpan = execution.Slice(executionIdIdx, actionIdIdx - executionIdIdx - ActionIdPrefix.Length);
+        ReadOnlySpan<char> actionIdSpan = execution.Slice(actionIdIdx);
 
-        var executionId = int.Parse(executionIdSpan);
-        var actionId = int.Parse(actionIdSpan);
+        int executionId = int.Parse(executionIdSpan);
+        int actionId = int.Parse(actionIdSpan);
 
         return new(executionId, actionId);
     }

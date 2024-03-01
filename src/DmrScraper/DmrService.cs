@@ -12,7 +12,7 @@ public class DmrService(HttpClient client)
     /// <inheritdoc cref="IDmrService"/>
     public async Task<DetailsResult?> GetDetailsAsync(string searchString, SearchCriteria searchCriteria, AdditionalSearchSheets searchSheets, DmrServiceOptions? options = null)
     {
-        var searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
+        SearchInfo searchInfo = await GetSearchInfoAsync(searchString, searchCriteria);
 
         return await GetDetailsFromSearchInfoAsync(searchInfo, searchSheets, options ?? DmrServiceOptions.Default);
     }
@@ -25,10 +25,9 @@ public class DmrService(HttpClient client)
 
     private async Task<DetailsResult?> GetDetailsFromSearchInfoAsync(SearchInfo searchInfo, AdditionalSearchSheets searchSheets, DmrServiceOptions options)
     {
-        var content = searchInfo.GetFormUrlEncodedContent();
-        var execution = searchInfo.Execution;
+        FormUrlEncodedContent content = searchInfo.GetFormUrlEncodedContent();
 
-        HttpResponseMessage searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(execution), content);
+        HttpResponseMessage searchResultResponse = await _client.PostAsync(DmrUriBuilder.CreateSearch(searchInfo.Execution), content);
 
         HtmlDocument searchResult = await searchResultResponse.Content.ReadAsHtmlDocumentAsync();
 
@@ -39,18 +38,16 @@ public class DmrService(HttpClient client)
 
         var vehicleDetails = reader.ReadKeyValuePairs(options.IncludeEmptyValues, options.IncludeFalseValues);
 
-        execution.IncrementActionId();
-
         IEnumerable<KeyValuePair<string, string>> technicalInformation = searchSheets.HasFlag(AdditionalSearchSheets.TechnicalInformation)
-            ? await GetDetailsFromPageIndexAsync(1, execution, DmrHtmlReader.ReadStrategy.InsideFieldGroup, options)
+            ? await GetDetailsFromPageIndexAsync(1, searchInfo.Execution, DmrHtmlReader.ReadStrategy.InsideFieldGroup, options)
             : [];
 
         IEnumerable<KeyValuePair<string, string>> inspectionDetails = searchSheets.HasFlag(AdditionalSearchSheets.Inspection)
-            ? await GetDetailsFromPageIndexAsync(2, execution, DmrHtmlReader.ReadStrategy.InsideContent, options)
+            ? await GetDetailsFromPageIndexAsync(2, searchInfo.Execution, DmrHtmlReader.ReadStrategy.InsideContent, options)
             : [];
 
         IEnumerable<KeyValuePair<string, string>> insuranceDetails = searchSheets.HasFlag(AdditionalSearchSheets.Insurance)
-            ? await GetDetailsFromPageIndexAsync(3, execution, DmrHtmlReader.ReadStrategy.InsideContent, options)
+            ? await GetDetailsFromPageIndexAsync(3, searchInfo.Execution, DmrHtmlReader.ReadStrategy.InsideContent, options)
             : [];
 
         return new DetailsResult(vehicleDetails, technicalInformation, inspectionDetails, insuranceDetails);
@@ -81,8 +78,6 @@ public class DmrService(HttpClient client)
         HttpResponseMessage pageResponse = await _client.GetAsync(DmrUriBuilder.CreatePage(execution, pageIndex));
 
         HtmlDocument pageHtml = await pageResponse.Content.ReadAsHtmlDocumentAsync();
-
-        execution.IncrementActionId();
 
         var reader = new DmrHtmlReader(pageHtml, readStrategy);
 

@@ -1,6 +1,6 @@
 ﻿namespace DmrScraper.Internal;
 
-internal readonly struct SearchInfo(string formToken, SearchCriteria searchCriteria, string searchString, DmrExecution execution)
+internal sealed class SearchInfo(string formToken, SearchCriteria searchCriteria, string searchString, DmrExecution execution)
 {
     private const string FormDataToken = "dmrFormToken";
     private const string FormDataSearchString = "soegeord";
