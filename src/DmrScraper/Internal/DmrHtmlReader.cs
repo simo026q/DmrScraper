@@ -4,7 +4,7 @@ using System.Xml.XPath;
 
 namespace DmrScraper.Internal;
 
-internal class DmrHtmlReader(HtmlNode contentNode, DmrHtmlReader.ReadStrategy readStrategy)
+internal sealed class DmrHtmlReader(HtmlNode contentNode, DmrPage page)
 {
     private static class XPaths
     {
@@ -19,19 +19,13 @@ internal class DmrHtmlReader(HtmlNode contentNode, DmrHtmlReader.ReadStrategy re
         public static readonly XPathExpression LineValue = XPathExpression.Compile("./div[contains(@class,'colValue')]/span");
     }
 
-    public enum ReadStrategy
-    {
-        InsideFieldGroup,
-        InsideContent
-    }
-
     private readonly HtmlNode? _contentNode = contentNode;
-    private readonly ReadStrategy _readStrategy = readStrategy;
+    private readonly DmrPage _page = page;
 
     public bool HasContent => _contentNode != null;
 
-    public DmrHtmlReader(HtmlDocument htmlDocument, ReadStrategy readStrategy)
-        : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content), readStrategy)
+    public DmrHtmlReader(HtmlDocument htmlDocument, DmrPage page)
+        : this(htmlDocument.DocumentNode.SelectSingleNode(XPaths.Content), page)
     {
     }
 
@@ -40,11 +34,11 @@ internal class DmrHtmlReader(HtmlNode contentNode, DmrHtmlReader.ReadStrategy re
         if (_contentNode == null)
             return [];
 
-        return _readStrategy switch
+        return _page switch
         {
-            ReadStrategy.InsideFieldGroup => ReadKeyValuePairsFromFieldGroup(_contentNode, includeEmpty, includeFalse),
-            ReadStrategy.InsideContent => ReadKeyValuePairsFromContent(_contentNode, includeEmpty, includeFalse),
-            _ => throw new ArgumentOutOfRangeException(nameof(_readStrategy), _readStrategy, null),
+            DmrPage.Vehicle or DmrPage.Technical => ReadKeyValuePairsFromFieldGroup(_contentNode, includeEmpty, includeFalse),
+            DmrPage.Inspection or DmrPage.Insurance => ReadKeyValuePairsFromContent(_contentNode, includeEmpty, includeFalse),
+            _ => throw new InvalidOperationException($"Specified DmrPage value is not supported in this class"),
         };
     }
 

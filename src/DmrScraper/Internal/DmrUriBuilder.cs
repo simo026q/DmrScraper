@@ -7,6 +7,6 @@ internal static class DmrUriBuilder
     public static Uri CreateSearch(DmrExecution execution) 
         => new($"{BaseUri}?execution={execution}&_eventId=search");
 
-    public static Uri CreatePage(DmrExecution execution, int pageIndex) 
-        => new($"{BaseUri}?execution={execution}&_eventId=customPage&_pageIndex={pageIndex}");
+    public static Uri CreatePage(DmrExecution execution, DmrPage page) 
+        => new($"{BaseUri}?execution={execution}&_eventId=customPage&_pageIndex={(int)page}");
 }
